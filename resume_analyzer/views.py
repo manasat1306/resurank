@@ -1,5 +1,6 @@
 import pdfplumber
 from django.shortcuts import render
+from .models import Resume
 
 import re
 
@@ -68,14 +69,13 @@ def upload_resume(request):
 
         sections = detect_sections(extracted_text)
         skills_list = extract_skills(sections)
-        print("----- EXTRACTED SKILLS -----")
-        print(skills_list)
-
-        print("----- DETECTED SECTIONS -----")
-        for section_name, content_lines in sections.items():
-            print(f"\n[{section_name.upper()}]")
-            for line in content_lines:
-                print(line)
+      
+        # Save to database
+        new_resume = Resume.objects.create(
+            file_name=resume_file.name,
+            raw_text=extracted_text,
+            skills=skills_list
+        )
 
         return render(request, 'resume_analyzer/upload.html', {
             'message': f'File "{resume_file.name}" uploaded successfully!'
