@@ -1,0 +1,72 @@
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%);
+    min-height: 100vh;
+}
+.navbar-brand-custom {
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 40px;
+}
+.upload-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 30px;
+}
+.score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto 20px auto;
+    color: white;
+    font-weight: bold;
+}
+.score-high { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.score-mid { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.score-low { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.badge-skill {
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    margin: 4px;
+    display: inline-block;
+}
+.breakdown-table th {
+    background: #f8fafc;
+    border: none;
+}
+.breakdown-table td {
+    border-color: #f1f5f9;
+    vertical-align: middle;
+}
+.btn-upload {
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+.btn-upload:hover {
+    opacity: 0.9;
+    color: white;
+}
+.section-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 15px;
+}
+.issue-item {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}

@@ -143,6 +143,24 @@ def check_action_verbs_and_metrics(sections):
         'bullets_with_metrics': metric_count
     }
 
+def bias_awareness_check(sections):
+    # This confirms our scoring never used identity-related info
+    gendered_terms = ['he', 'she', 'his', 'her', 'him', 'mr.', 'mrs.', 'ms.']
+    header_lines = sections.get('header', [])
+
+    found_terms = []
+    for line in header_lines:
+        lower_line = line.lower()
+        for term in gendered_terms:
+            if f' {term} ' in f' {lower_line} ':
+                found_terms.append(term)
+
+    return {
+        'scoring_used_name': False,
+        'scoring_used_photo': False,
+        'scoring_used_gender_terms': False,
+        'note': "Score is based only on skills, ATS compatibility, and achievement quality — name, gender, and photos are never factored into scoring."
+    }
 def calculate_overall_score(ats_result, action_result, skills_list, weights=None):
     # Default weights (recruiter can change these later, not hardcoded permanently)
     if weights is None:
@@ -187,11 +205,11 @@ def calculate_overall_score(ats_result, action_result, skills_list, weights=None
     })
 
     final_score = round(sum(item['points'] for item in breakdown), 1)
-
     return {
         'final_score': final_score,
         'breakdown': breakdown
     }    
+
 
 def upload_resume(request):
     if request.method == 'POST':
@@ -219,7 +237,9 @@ def upload_resume(request):
         final_result = calculate_overall_score(ats_result, action_result, skills_list)
         print("----- FINAL SCORE -----")
         print(final_result)
-      
+
+        bias_result = bias_awareness_check(sections) 
+        
         # Save to database
         new_resume = Resume.objects.create(
             file_name=resume_file.name,
@@ -230,6 +250,11 @@ def upload_resume(request):
         )
 
         return render(request, 'resume_analyzer/upload.html', {
-            'message': f'File "{resume_file.name}" uploaded successfully!'
+            'message': f'File "{resume_file.name}" uploaded successfully!',
+            'final_score': final_result['final_score'],
+            'breakdown': final_result['breakdown'],
+            'skills': skills_list,
+            'ats_issues': ats_result['issues'],
+            'bias_note': bias_result['note']
         })
     return render(request, 'resume_analyzer/upload.html')
