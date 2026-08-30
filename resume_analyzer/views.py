@@ -1,8 +1,9 @@
 import pdfplumber
 from django.shortcuts import render
-from .models import Resume
+from .models import Resume, JobDescription
+from .matcher import calculate_match_percentage, find_matched_and_missing_skills
 
-import re
+import re #regular expressions
 
 def detect_sections(text):
     # Common section headers found in resumes
@@ -81,7 +82,7 @@ def check_ats_compatibility(text, sections):
     has_skills = any(
         key in sections and sections[key]
         for key in ['skills', 'technical skills', 'core skills', 'key skills']
-    )
+    ) #does this section name exist and does it contain something
 
     if not has_education:
         issues.append("Missing 'Education' section")
@@ -210,6 +211,41 @@ def calculate_overall_score(ats_result, action_result, skills_list, weights=None
         'breakdown': breakdown
     }    
 
+def match_resume_to_job(request):
+    result = None
+    resumes = Resume.objects.all() #django ORM
+
+    if request.method == 'POST':
+        resume_id = request.POST.get('resume_id')
+        jd_text = request.POST.get('job_description')
+        jd_title = request.POST.get('job_title', 'Untitled Job')
+
+        selected_resume = Resume.objects.get(id=resume_id)
+
+        # Save the job description
+        job = JobDescription.objects.create(
+            title=jd_title,
+            description_text=jd_text
+        )
+
+        # Calculate match
+        match_percentage = calculate_match_percentage(selected_resume.skills, jd_text)
+        skills_result = find_matched_and_missing_skills(selected_resume.skills, jd_text)
+
+        result = {
+            'resume_name': selected_resume.file_name,
+            'job_title': job.title,
+            'match_percentage': match_percentage,
+            'matched_skills': skills_result['matched_skills'],
+            'missing_skills': skills_result['missing_skills'],
+            'match_count': skills_result['match_count'],
+            'total_resume_skills': skills_result['total_resume_skills'],
+        }
+
+    return render(request, 'resume_analyzer/match.html', {
+        'resumes': resumes,
+        'result': result
+    })
 
 def upload_resume(request):
     if request.method == 'POST':
@@ -241,7 +277,7 @@ def upload_resume(request):
         bias_result = bias_awareness_check(sections) 
         
         # Save to database
-        new_resume = Resume.objects.create(
+        new_resume = Resume.objects.create(    #django ORM
             file_name=resume_file.name,
             raw_text=extracted_text,
             skills=skills_list,

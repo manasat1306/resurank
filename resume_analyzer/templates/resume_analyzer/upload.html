@@ -7,84 +7,87 @@
     <link href="{% static 'resume_analyzer/css/style.css' %}" rel="stylesheet">
 </head>
 <body>
-    <div class="navbar-brand-custom text-center">
-        <h1 class="mb-0">📄 ResuRank</h1>
-        <p class="mb-0">Explainable Resume Scoring &amp; Ranking</p>
-    </div>
-
-    <div class="container" style="max-width: 800px;">   
-
-        <div class="card upload-card mb-4">
-            <h4 class="section-title">Upload Your Resume</h4>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="resume" accept=".pdf" required class="form-control mb-3">
-                <button type="submit" class="btn btn-upload">Analyze Resume</button>
-            </form>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <span class="mark">RR</span>
+            <div>
+                <h1>ResuRank</h1>
+                <p>A recruiter's desk, automated — every score comes with a reason.</p>
+            </div>
         </div>
+    </header>
+
+    <div class="sheet">
+
+        <section class="panel intake">
+            <p class="eyebrow">Step 01 — Submission</p>
+            <h2>Drop the resume on the desk</h2>
+            <form method="POST" enctype="multipart/form-data" class="intake-form">
+                {% csrf_token %}
+                <input type="file" name="resume" accept=".pdf" required class="file-input">
+                <button type="submit" class="stamp-btn">Review it</button>
+            </form>
+        </section>
 
         {% if message %}
-            <div class="alert alert-success">{{ message }}</div>
+            <div class="note-slip">{{ message }}</div>
         {% endif %}
 
         {% if final_score is not None %}
 
-            <div class="card upload-card mb-4 text-center">
-                <div class="score-circle {% if final_score >= 70 %}score-high{% elif final_score >= 40 %}score-mid{% else %}score-low{% endif %}">
-                    <div style="font-size: 2em;">{{ final_score }}</div>
-                    <div style="font-size: 0.8em;">out of 100</div>
+            <section class="panel verdict">
+                <p class="eyebrow">Step 02 — Verdict</p>
+                <div class="stamp {% if final_score >= 70 %}stamp-good{% elif final_score >= 40 %}stamp-mid{% else %}stamp-low{% endif %}">
+                    <span class="stamp-score">{{ final_score }}</span>
+                    <span class="stamp-out">/ 100</span>
                 </div>
-                <p class="text-muted mb-0">Overall Resume Score</p>
-            </div>
-            {% if bias_note %}
-            <p class="text-muted" style="font-size: 0.85em;">🔒 {{ bias_note }}</p>
-            {% endif %}
+                <p class="verdict-caption">
+                    {% if final_score >= 70 %}Reads clean. Ready for a recruiter's eyes.
+                    {% elif final_score >= 40 %}Workable, but the margin notes below are worth fixing.
+                    {% else %}Needs real work before this goes in front of a human.{% endif %}
+                </p>
+                {% if bias_note %}
+                <p class="verdict-caption" style="font-size: 0.8em; margin-top: 10px;">🔒 {{ bias_note }}</p>
+                {% endif %}
+            </section>
 
-            <div class="card upload-card mb-4">
-                <h4 class="section-title">📊 Score Breakdown</h4>
-                <table class="table breakdown-table">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Points</th>
-                            <th>Why</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in breakdown %}
-                        <tr>
-                            <td><strong>{{ item.category }}</strong></td>
-                            <td>{{ item.points }}</td>
-                            <td class="text-muted">{{ item.reason }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card upload-card mb-4">
-                <h4 class="section-title">🛠️ Skills Found</h4>
-                <div>
-                    {% for skill in skills %}
-                        <span class="badge-skill">{{ skill }}</span>
+            <section class="panel">
+                <p class="eyebrow">Step 03 — Margin notes</p>
+                <h3>Why this score</h3>
+                <div class="ledger">
+                    {% for item in breakdown %}
+                    <div class="ledger-row">
+                        <span class="ledger-cat">{{ item.category }}</span>
+                        <span class="ledger-pts">{{ item.points }} pts</span>
+                        <span class="ledger-why">{{ item.reason }}</span>
+                    </div>
                     {% endfor %}
                 </div>
-            </div>
+            </section>
+
+            <section class="panel">
+                <p class="eyebrow">Step 04 — Inventory</p>
+                <h3>Skills on file</h3>
+                <div class="tag-row">
+                    {% for skill in skills %}
+                        <span class="tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </section>
 
             {% if ats_issues %}
-            <div class="card upload-card mb-4">
-                <h4 class="section-title">⚠️ ATS Issues to Fix</h4>
+            <section class="panel flagged">
+                <p class="eyebrow">Step 05 — Flagged in red pen</p>
+                <h3>ATS issues</h3>
                 {% for issue in ats_issues %}
-                    <div class="issue-item">{{ issue }}</div>
+                    <div class="redline">{{ issue }}</div>
                 {% endfor %}
-            </div>
+            </section>
             {% endif %}
 
         {% endif %}
     </div>
 
-    <div class="text-center text-muted my-5">
-        <small>ResuRank — Transparent, rule-based resume scoring</small>
-    </div>
+    <footer class="footline">Transparent, rule-based scoring — no black box, every point explained.</footer>
 </body>
 </html>

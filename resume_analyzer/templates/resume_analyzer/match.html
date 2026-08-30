@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>ResuRank - Match Resume to Job</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'resume_analyzer/css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <span class="mark">RR</span>
+            <div>
+                <h1>ResuRank — Job Matcher</h1>
+                <p>Compare a resume against a job description, with a clear reason for every score.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="sheet">
+
+        <section class="panel intake">
+            <p class="eyebrow">Step 01 — Setup</p>
+            <h2>Pick a resume, paste the job</h2>
+            <form method="POST" class="intake-form" style="flex-direction: column; align-items: stretch;">
+                {% csrf_token %}
+
+                <label>Select Resume</label>
+                <select name="resume_id" required class="file-input" style="margin-bottom: 14px;">
+                    <option value="">-- choose a resume --</option>
+                    {% for resume in resumes %}
+                        <option value="{{ resume.id }}">{{ resume.file_name }} (Score: {{ resume.final_score }})</option>
+                    {% endfor %}
+                </select>
+
+                <label>Job Title</label>
+                <input type="text" name="job_title" placeholder="e.g. Backend Developer" class="file-input" style="margin-bottom: 14px;">
+
+                <label>Job Description</label>
+                <textarea name="job_description" rows="8" required class="file-input" style="margin-bottom: 14px;" placeholder="Paste the full job description here..."></textarea>
+
+                <button type="submit" class="stamp-btn" style="align-self: flex-start;">Compare</button>
+            </form>
+        </section>
+
+        {% if result %}
+            <section class="panel verdict">
+                <p class="eyebrow">Step 02 — Match Result</p>
+                <div class="stamp {% if result.match_percentage >= 70 %}stamp-good{% elif result.match_percentage >= 40 %}stamp-mid{% else %}stamp-low{% endif %}">
+                    <span class="stamp-score">{{ result.match_percentage }}</span>
+                    <span class="stamp-out">% match</span>
+                </div>
+                <p class="verdict-caption">{{ result.resume_name }} vs. {{ result.job_title }}</p>
+            </section>
+
+            <section class="panel">
+                <p class="eyebrow">Step 03 — Skill Overlap</p>
+                <h3>Matched Skills ({{ result.match_count }} of {{ result.total_resume_skills }})</h3>
+                <div class="tag-row">
+                    {% for skill in result.matched_skills %}
+                        <span class="tag">{{ skill }}</span>
+                    {% empty %}
+                        <span class="redline">No skills from the resume were found in the job description.</span>
+                    {% endfor %}
+                </div>
+            </section>
+
+            {% if result.missing_skills %}
+            <section class="panel flagged">
+                <p class="eyebrow">Step 04 — Gaps</p>
+                <h3>Missing Skills</h3>
+                <div class="tag-row">
+                    {% for skill in result.missing_skills %}
+                        <span class="redline">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <footer class="footline">Transparent, rule-based matching — TF-IDF + cosine similarity, no black box.</footer>
+</body>
+</html>

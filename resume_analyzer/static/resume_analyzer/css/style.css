@@ -1,72 +1,205 @@
+/* ResuRank — "Recruiter's Desk" theme */
+
+:root {
+    --paper: #f4f2ec;
+    --ink: #1c2b3a;
+    --pencil: #6b7280;
+    --line: #d8d4c8;
+    --red: #c0392b;
+    --green: #2f7a4f;
+    --amber: #b7791f;
+}
+
 body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%);
-    min-height: 100vh;
+    background-color: var(--paper);
+    background-image:
+        repeating-linear-gradient(180deg, transparent, transparent 27px, var(--line) 28px);
+    color: var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    margin: 0;
 }
-.navbar-brand-custom {
-    background: linear-gradient(90deg, #4f46e5, #7c3aed);
-    color: white;
-    padding: 20px 0;
-    margin-bottom: 40px;
+
+.topbar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 28px 0;
 }
-.upload-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    padding: 30px;
-}
-.score-circle {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
+.topbar-inner {
+    max-width: 760px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin: 0 auto 20px auto;
-    color: white;
+    gap: 18px;
+    padding: 0 20px;
+}
+.mark {
+    font-family: 'Courier New', monospace;
     font-weight: bold;
+    font-size: 1.4em;
+    border: 2px solid var(--paper);
+    padding: 8px 12px;
+    border-radius: 4px;
+    transform: rotate(-3deg);
+    flex-shrink: 0;
 }
-.score-high { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.score-mid { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.score-low { background: linear-gradient(135deg, #ef4444, #dc2626); }
-.badge-skill {
-    background: #eef2ff;
-    color: #4f46e5;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    margin: 4px;
-    display: inline-block;
+.topbar h1 {
+    margin: 0;
+    font-size: 1.6em;
+    letter-spacing: 0.02em;
 }
-.breakdown-table th {
-    background: #f8fafc;
-    border: none;
+.topbar p {
+    margin: 2px 0 0 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #c9d2dc;
 }
-.breakdown-table td {
-    border-color: #f1f5f9;
-    vertical-align: middle;
+
+.sheet {
+    max-width: 760px;
+    margin: 40px auto;
+    padding: 0 20px;
 }
-.btn-upload {
-    background: linear-gradient(90deg, #4f46e5, #7c3aed);
-    color: white;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 8px;
-    font-weight: 600;
+
+.panel {
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--ink);
+    padding: 26px 28px;
+    margin-bottom: 24px;
+    box-shadow: 2px 3px 0 rgba(28,43,58,0.06);
 }
-.btn-upload:hover {
-    opacity: 0.9;
-    color: white;
+
+.eyebrow {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pencil);
+    margin: 0 0 6px 0;
 }
-.section-title {
+
+.panel h2, .panel h3 {
+    margin: 0 0 16px 0;
     font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 15px;
 }
-.issue-item {
-    background: #fef2f2;
-    color: #b91c1c;
-    padding: 8px 14px;
-    border-radius: 8px;
-    margin-bottom: 6px;
+
+.intake-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.file-input {
+    font-family: 'Courier New', monospace;
+    border: 1px solid var(--pencil);
+    padding: 10px;
+    background: var(--paper);
+    flex: 1;
+    min-width: 220px;
+}
+.stamp-btn {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 12px 22px;
+    cursor: pointer;
+}
+.stamp-btn:hover {
+    background: #2a3d52;
+}
+
+.note-slip {
+    font-family: 'Courier New', monospace;
+    background: #eef4ee;
+    border: 1px dashed var(--green);
+    color: var(--green);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+}
+
+.verdict {
+    text-align: center;
+}
+
+.stamp {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    border: 4px double;
+    padding: 14px 26px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    transform: rotate(-2deg);
+    margin: 8px 0 14px 0;
+}
+.stamp-score { font-size: 2.2em; }
+.stamp-out { font-size: 1em; opacity: 0.7; }
+
+.stamp-good { border-color: var(--green); color: var(--green); }
+.stamp-mid  { border-color: var(--amber); color: var(--amber); }
+.stamp-low  { border-color: var(--red); color: var(--red); }
+
+.verdict-caption {
+    color: var(--pencil);
+    font-style: italic;
+    margin: 0;
+}
+
+.ledger-row {
+    display: grid;
+    grid-template-columns: 180px 70px 1fr;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px dotted var(--line);
+    align-items: baseline;
+}
+.ledger-row:last-child { border-bottom: none; }
+.ledger-cat { font-weight: bold; }
+.ledger-pts {
+    font-family: 'Courier New', monospace;
+    color: var(--ink);
+}
+.ledger-why {
+    color: var(--pencil);
+    font-size: 0.95em;
+}
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    border: 1px solid var(--ink);
+    padding: 5px 10px;
+    background: var(--paper);
+}
+
+.flagged { border-left-color: var(--red); }
+.redline {
+    font-family: 'Courier New', monospace;
+    color: var(--red);
+    padding: 6px 0;
+    border-bottom: 1px dotted #eccfcb;
+}
+.redline:last-child { border-bottom: none; }
+.redline::before {
+    content: "✕ ";
+}
+
+.footline {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+    color: var(--pencil);
+    padding: 30px 0 50px 0;
+}
+
+@media (max-width: 600px) {
+    .ledger-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
 }
