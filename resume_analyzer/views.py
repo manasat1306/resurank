@@ -294,3 +294,38 @@ def upload_resume(request):
             'bias_note': bias_result['note']
         })
     return render(request, 'resume_analyzer/upload.html')
+
+def job_ranking(request):
+    job_description_text = ""
+    saved_jds = JobDescription.objects.all().order_by('-id')
+    results = []
+
+    if request.method == 'POST':
+        selected_jd_id = request.POST.get('saved_jd')
+        if selected_jd_id:
+            jd_obj = JobDescription.objects.get(id=selected_jd_id)
+            job_description_text = jd_obj.description_text
+        else:
+            job_description_text = request.POST.get('job_description', '')
+
+        resumes = Resume.objects.all()
+
+        for resume in resumes:
+            match_percentage = calculate_match_percentage(resume.skills, job_description_text)
+            skills_data = find_matched_and_missing_skills(resume.skills, job_description_text)
+
+            results.append({
+                'resume': resume,
+                'match_percentage': match_percentage,
+                'matched_skills': skills_data['matched_skills'],
+                'missing_skills': skills_data['missing_skills'],
+            })
+
+        results.sort(key=lambda x: x['match_percentage'], reverse=True)
+
+    context = {
+        'saved_jds': saved_jds,
+        'job_description_text': job_description_text,
+        'results': results,
+    }
+    return render(request, 'resume_analyzer/ranking.html', context)

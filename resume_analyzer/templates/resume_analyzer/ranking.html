@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking Dashboard - ResuRank</title>
+    <link rel="stylesheet" href="{% static 'resume_analyzer/css/style.css' %}">
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="mark">RR</div>
+            <div>
+                <h1>Ranking Dashboard</h1>
+                <p>Rank every resume on file against one job description</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="sheet">
+        <div class="panel">
+            <p class="eyebrow">Step 1</p>
+            <h2>Choose a job description</h2>
+
+            <form method="POST" class="intake-form">
+                {% csrf_token %}
+
+                <select name="saved_jd" id="saved_jd" class="file-input">
+                    <option value="">-- None, I'll paste one below --</option>
+                    {% for jd in saved_jds %}
+                        <option value="{{ jd.id }}">{{ jd.title }}</option>
+                    {% endfor %}
+                </select>
+
+                <textarea name="job_description" id="job_description" rows="6" class="file-input" placeholder="Or paste a new job description here">{{ job_description_text }}</textarea>
+
+                <button type="submit" class="stamp-btn">Rank Candidates</button>
+            </form>
+        </div>
+
+        {% if results %}
+        <div class="panel">
+            <p class="eyebrow">Results</p>
+            <h2>{{ results|length }} candidates ranked</h2>
+
+            {% for r in results %}
+            <div class="ledger-row">
+                <div class="ledger-cat">{{ r.resume.file_name }}</div>
+                <div class="ledger-pts">{{ r.match_percentage }}%</div>
+                <div class="ledger-why">
+                    <div class="tag-row">
+                        {% for skill in r.matched_skills %}
+                            <span class="tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="footline">ResuRank — recruiter-only, rule-based, fully explainable</div>
+</body>
+</html>

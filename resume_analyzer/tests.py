@@ -8,7 +8,7 @@ from .views import (
     check_action_verbs_and_metrics,
     calculate_overall_score,
 )
-
+from .matcher import calculate_match_percentage, find_matched_and_missing_skills
 
 class SectionDetectionTests(TestCase):
     def test_detects_basic_sections(self):
@@ -130,3 +130,61 @@ class OverallScoreTests(TestCase):
         result = calculate_overall_score(ats_result, action_result, skills_list, weights=custom_weights)
 
         self.assertEqual(result['final_score'], 100.0)
+
+
+#feature 2
+class MatchPercentageTests(TestCase):
+    def test_full_skills_overlap_gives_high_score(self):
+        resume_skills = ['Python', 'Flask', 'MySQL']
+        jd_text = "We need a developer with Python, Flask, and MySQL experience."
+        score = calculate_match_percentage(resume_skills, jd_text)
+        self.assertGreater(score, 60)
+
+    def test_no_overlap_gives_low_score(self):
+        resume_skills = ['Java', 'Spring']
+        jd_text = "We are looking for a chef with cooking and baking experience."
+        score = calculate_match_percentage(resume_skills, jd_text)
+        self.assertLess(score, 20)
+
+    def test_empty_skills_list_does_not_crash(self):
+        resume_skills = []
+        jd_text = "We need a Python developer."
+        score = calculate_match_percentage(resume_skills, jd_text)
+        self.assertGreaterEqual(score, 0)
+
+    def test_same_input_gives_same_score_every_time(self):
+        resume_skills = ['Python', 'SQL', 'Git']
+        jd_text = "Looking for someone with Python and SQL skills."
+        score1 = calculate_match_percentage(resume_skills, jd_text)
+        score2 = calculate_match_percentage(resume_skills, jd_text)
+        self.assertEqual(score1, score2)
+
+
+class MatchedMissingSkillsTests(TestCase):
+    def test_finds_matched_skills_correctly(self):
+        resume_skills = ['Python', 'Flask', 'MySQL']
+        jd_text = "We need Python and Flask experience."
+        result = find_matched_and_missing_skills(resume_skills, jd_text)
+        self.assertIn('Python', result['matched_skills'])
+        self.assertIn('Flask', result['matched_skills'])
+        self.assertNotIn('MySQL', result['matched_skills'])
+
+    def test_finds_missing_skills_from_jd(self):
+        resume_skills = ['Python']
+        jd_text = "We need Python and Docker experience with AWS."
+        result = find_matched_and_missing_skills(resume_skills, jd_text)
+        self.assertIn('docker', result['missing_skills'])
+        self.assertIn('aws', result['missing_skills'])
+
+    def test_no_missing_skills_when_jd_has_none_from_reference_list(self):
+        resume_skills = ['Python']
+        jd_text = "We need someone who is friendly and hardworking."
+        result = find_matched_and_missing_skills(resume_skills, jd_text)
+        self.assertEqual(result['missing_skills'], [])
+
+    def test_match_count_is_accurate(self):
+        resume_skills = ['Python', 'SQL', 'Git', 'Docker']
+        jd_text = "Need Python and SQL skills."
+        result = find_matched_and_missing_skills(resume_skills, jd_text)
+        self.assertEqual(result['match_count'], 2)
+        self.assertEqual(result['total_resume_skills'], 4)        
