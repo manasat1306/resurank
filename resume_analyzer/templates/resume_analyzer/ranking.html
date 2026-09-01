@@ -7,15 +7,22 @@
     <link rel="stylesheet" href="{% static 'resume_analyzer/css/style.css' %}">
 </head>
 <body>
-    <div class="topbar">
-        <div class="topbar-inner">
-            <div class="mark">RR</div>
-            <div>
-                <h1>Ranking Dashboard</h1>
-                <p>Rank every resume on file against one job description</p>
+    <header class="topbar">
+        <div class="topbar-inner" style="justify-content: space-between; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 18px;">
+                <span class="mark">RR</span>
+                <div>
+                    <h1>Ranking Dashboard</h1>
+                    <p>Rank every resume on file against one job description</p>
+                </div>
             </div>
+            <nav style="display: flex; gap: 10px;">
+                <a href="{% url 'upload_resume' %}" style="color: #1c2b3a; background: #f4f2ec; font-weight: bold; text-decoration: none; font-family: 'Courier New', monospace; font-size: 0.85em; padding: 6px 12px; border-radius: 4px;">Analyze</a>
+                <a href="{% url 'match_resume_to_job' %}" style="color: #1c2b3a; background: #f4f2ec; font-weight: bold; text-decoration: none; font-family: 'Courier New', monospace; font-size: 0.85em; padding: 6px 12px; border-radius: 4px;">Match</a>
+                <a href="{% url 'job_ranking' %}" style="color: #1c2b3a; background: #f4f2ec; font-weight: bold; text-decoration: none; font-family: 'Courier New', monospace; font-size: 0.85em; padding: 6px 12px; border-radius: 4px;">Ranking</a>
+            </nav>
         </div>
-    </div>
+    </header>
 
     <div class="sheet">
         <div class="panel">
@@ -34,7 +41,11 @@
 
                 <textarea name="job_description" id="job_description" rows="6" class="file-input" placeholder="Or paste a new job description here">{{ job_description_text }}</textarea>
 
+                <label style="display:block; margin: 10px 0 4px;">Minimum match % (optional)</label>
+                <input type="number" name="min_score" min="0" max="100" class="file-input" placeholder="e.g. 50" value="{{ request.POST.min_score }}">
+
                 <button type="submit" class="stamp-btn">Rank Candidates</button>
+
             </form>
         </div>
 
@@ -52,6 +63,9 @@
                         {% for skill in r.matched_skills %}
                             <span class="tag">{{ skill }}</span>
                         {% endfor %}
+                        {% for skill in r.missing_skills %}
+                            <span class="redline" style="display:inline-block;">{{ skill }}</span>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -60,6 +74,6 @@
         {% endif %}
     </div>
 
-    <div class="footline">ResuRank — recruiter-only, rule-based, fully explainable</div>
+    <footer class="footline">ResuRank — recruiter-only, rule-based, fully explainable</footer>
 </body>
 </html>

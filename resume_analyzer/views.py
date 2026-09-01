@@ -323,6 +323,10 @@ def job_ranking(request):
 
         results.sort(key=lambda x: x['match_percentage'], reverse=True)
 
+        min_score = request.POST.get('min_score')
+        if min_score:
+            results = [r for r in results if r['match_percentage'] >= float(min_score)]
+
     context = {
         'saved_jds': saved_jds,
         'job_description_text': job_description_text,
