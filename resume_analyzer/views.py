@@ -1,7 +1,7 @@
 import pdfplumber
 from django.shortcuts import render
 from .models import Resume, JobDescription
-from .matcher import calculate_match_percentage, find_matched_and_missing_skills
+from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
 
 import re #regular expressions
 
@@ -232,6 +232,9 @@ def match_resume_to_job(request):
         match_percentage = calculate_match_percentage(selected_resume.skills, jd_text)
         skills_result = find_matched_and_missing_skills(selected_resume.skills, jd_text)
 
+        severity_analysis = analyze_skill_gap_severity(skills_result['missing_skills'], jd_text)
+        has_useful_severity_signal = any(item['severity'] != 'unclear' for item in severity_analysis)
+
         result = {
             'resume_name': selected_resume.file_name,
             'job_title': job.title,
@@ -240,6 +243,8 @@ def match_resume_to_job(request):
             'missing_skills': skills_result['missing_skills'],
             'match_count': skills_result['match_count'],
             'total_resume_skills': skills_result['total_resume_skills'],
+            'severity_analysis': severity_analysis,
+            'has_useful_severity_signal': has_useful_severity_signal,
         }
 
     return render(request, 'resume_analyzer/match.html', {

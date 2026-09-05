@@ -84,6 +84,24 @@
                 </div>
             </section>
             {% endif %}
+            
+            {% if result.has_useful_severity_signal %}
+            <section class="panel">
+                <p class="eyebrow">Step 05 — Hiring Risk</p>
+                <h3>Skill Gap Severity</h3>
+                <div class="ledger">
+                    {% for item in result.severity_analysis %}
+                        {% if item.severity != 'unclear' %}
+                        <div class="ledger-row">
+                            <span class="ledger-cat" style="text-transform: capitalize;">{{ item.skill }}</span>
+                            <span class="ledger-pts" style="text-transform: uppercase; font-size: 0.8em;">{{ item.severity }}</span>
+                            <span class="ledger-why">{{ item.note }}</span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
         {% endif %}
 
     </div>

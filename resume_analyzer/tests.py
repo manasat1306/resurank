@@ -8,7 +8,7 @@ from .views import (
     check_action_verbs_and_metrics,
     calculate_overall_score,
 )
-from .matcher import calculate_match_percentage, find_matched_and_missing_skills
+from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
 
 class SectionDetectionTests(TestCase):
     def test_detects_basic_sections(self):
@@ -188,3 +188,38 @@ class MatchedMissingSkillsTests(TestCase):
         result = find_matched_and_missing_skills(resume_skills, jd_text)
         self.assertEqual(result['match_count'], 2)
         self.assertEqual(result['total_resume_skills'], 4)        
+
+
+
+#feature 4
+class SkillGapSeverityTests(TestCase):
+    def test_detects_critical_requirement(self):
+        jd_text = "Python is required and must have strong experience in Django."
+        result = analyze_skill_gap_severity(['django'], jd_text)
+        self.assertEqual(result[0]['severity'], 'critical')
+
+    def test_detects_moderate_preference(self):
+        jd_text = "Familiarity with AWS is preferred."
+        result = analyze_skill_gap_severity(['aws'], jd_text)
+        self.assertEqual(result[0]['severity'], 'moderate')
+
+    def test_handles_negated_critical_phrase_correctly(self):
+        jd_text = "Docker experience is a plus but not mandatory."
+        result = analyze_skill_gap_severity(['docker'], jd_text)
+        self.assertEqual(result[0]['severity'], 'moderate')
+
+    def test_no_priority_language_gives_unclear(self):
+        jd_text = "We use Python, Django, and PostgreSQL in our stack."
+        result = analyze_skill_gap_severity(['postgresql'], jd_text)
+        self.assertEqual(result[0]['severity'], 'unclear')
+
+    def test_skill_not_mentioned_in_jd_gives_unclear(self):
+        jd_text = "We need someone who knows Python."
+        result = analyze_skill_gap_severity(['kubernetes'], jd_text)
+        self.assertEqual(result[0]['severity'], 'unclear')
+
+    def test_critical_sorted_before_moderate_before_unclear(self):
+        jd_text = "Python is required. Docker is a plus. We also use Redis."
+        result = analyze_skill_gap_severity(['redis', 'docker', 'python'], jd_text)
+        severities_in_order = [item['severity'] for item in result]
+        self.assertEqual(severities_in_order, ['critical', 'unclear', 'moderate'])
