@@ -5,7 +5,7 @@ class Resume(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     raw_text = models.TextField()
     skills = models.JSONField(default=list)  # stores list like ['Python', 'SQL']
-    final_score = models.FloatField(default=0)
+    final_score = models.FloatField(default=0, db_index=True)
     score_breakdown = models.JSONField(default=list)
 
     def __str__(self):        
