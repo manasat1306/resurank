@@ -258,11 +258,21 @@ def upload_resume(request):
 
         # Read text from the PDF
         extracted_text = ""
-        with pdfplumber.open(resume_file) as pdf:
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    extracted_text += page_text + "\n"
+        try:
+            with pdfplumber.open(resume_file) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        extracted_text += page_text + "\n"
+        except Exception as e:
+            return render(request, 'resume_analyzer/upload.html', {
+                'message': f'Could not read "{resume_file.name}" — it may be corrupted, password-protected, or not a valid PDF. Please try a different file.'
+            })
+
+        if not extracted_text.strip():
+            return render(request, 'resume_analyzer/upload.html', {
+                'message': f'No readable text found in "{resume_file.name}". This can happen with scanned/image-based PDFs. Please try a text-based PDF.'
+            })
 
         sections = detect_sections(extracted_text)
         skills_list = extract_skills(sections)
