@@ -4,6 +4,22 @@ from .models import Resume, JobDescription
 from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
 
 import re #regular expressions
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('upload_resume')
+    else:
+        form = UserCreationForm()
+    return render(request, 'resume_analyzer/signup.html', {'form': form})
 
 def detect_sections(text):
     # Common section headers found in resumes
@@ -211,9 +227,10 @@ def calculate_overall_score(ats_result, action_result, skills_list, weights=None
         'breakdown': breakdown
     }    
 
+@login_required
 def match_resume_to_job(request):
     result = None
-    resumes = Resume.objects.all() #django ORM
+    resumes = Resume.objects.filter(recruiter=request.user)  # changed from .all()
 
     if request.method == 'POST':
         resume_id = request.POST.get('resume_id')
@@ -224,6 +241,7 @@ def match_resume_to_job(request):
 
         # Save the job description
         job = JobDescription.objects.create(
+            recruiter=request.user,
             title=jd_title,
             description_text=jd_text
         )
@@ -252,6 +270,7 @@ def match_resume_to_job(request):
         'result': result
     })
 
+@login_required
 def upload_resume(request):
     if request.method == 'POST':
         resume_file = request.FILES.get('resume')
@@ -293,6 +312,7 @@ def upload_resume(request):
         
         # Save to database
         new_resume = Resume.objects.create(    #django ORM
+            recruiter=request.user,
             file_name=resume_file.name,
             raw_text=extracted_text,
             skills=skills_list,
@@ -312,7 +332,7 @@ def upload_resume(request):
 
 def job_ranking(request):
     job_description_text = ""
-    saved_jds = JobDescription.objects.all().order_by('-id')
+    saved_jds = JobDescription.objects.filter(recruiter=request.user).order_by('-id')
     results = []
 
     if request.method == 'POST':
@@ -323,7 +343,7 @@ def job_ranking(request):
         else:
             job_description_text = request.POST.get('job_description', '')
 
-        resumes = Resume.objects.all()
+        resumes = Resume.objects.filter(recruiter=request.user)
 
         for resume in resumes:
             match_percentage = calculate_match_percentage(resume.skills, job_description_text)

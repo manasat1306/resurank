@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>ResuRank - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'resume_analyzer/css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="sheet" style="margin-top: 80px;">
+        <section class="panel intake">
+            <p class="eyebrow">Recruiter Access</p>
+            <h2>Create your ResuRank account</h2>
+            <form method="POST" class="intake-form" style="flex-direction: column; align-items: stretch;">
+                {% csrf_token %}
+
+                <label>Username</label>
+                <input type="text" name="username" required class="file-input" style="margin-bottom: 14px;">
+
+                <label>Password</label>
+                <input type="password" name="password1" required class="file-input" style="margin-bottom: 14px;">
+
+                <label>Confirm Password</label>
+                <input type="password" name="password2" required class="file-input" style="margin-bottom: 14px;">
+
+                {% if form.errors %}
+                    <div class="redline">{{ form.errors }}</div>
+                {% endif %}
+
+                <button type="submit" class="stamp-btn" style="margin-top: 10px;">Sign Up</button>
+            </form>
+            <p style="margin-top: 16px;">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        </section>
+    </div>
+</body>
+</html>
