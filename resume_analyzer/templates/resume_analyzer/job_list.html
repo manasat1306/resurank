@@ -1,0 +1,90 @@
+{% extends 'resume_analyzer/base.html' %}
+
+{% block title %}Jobs{% endblock %}
+{% block page_title %}Jobs{% endblock %}
+{% block page_subtitle %}Create, manage, and track your hiring opportunities.{% endblock %}
+
+{% block top_actions %}
+  <a href="#" class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700">+ Create Job</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+
+  <!-- Heading -->
+  <div class="text-[10px] tracking-widest text-indigo-600 font-semibold">HIRING WORKSPACE</div>
+  <h1 class="text-2xl font-bold text-slate-900">Your Jobs</h1>
+  <p class="text-sm text-slate-500 mb-5">Manage your open roles and keep track of candidate activity.</p>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-5">
+    {% for key, label in tabs %}
+      <a href="?status={{ key }}{% if q %}&q={{ q }}{% endif %}"
+         class="flex items-center gap-2 px-3 py-1.5 rounded-md border text-sm
+                {% if tab == key %}bg-indigo-50 border-indigo-300 text-indigo-700{% else %}bg-white border-slate-200 text-slate-700 hover:bg-slate-50{% endif %}">
+        {{ label }}
+        <span class="text-xs bg-slate-100 text-slate-600 rounded-full px-1.5">
+          {% if key == 'all' %}{{ counts.all }}{% elif key == 'active' %}{{ counts.active }}{% elif key == 'draft' %}{{ counts.draft }}{% else %}{{ counts.closed }}{% endif %}
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Card -->
+  <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
+
+    <!-- Search -->
+    <form method="get" class="p-4">
+      <input type="hidden" name="status" value="{{ tab }}">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search jobs..."
+             class="w-full max-w-sm border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-indigo-400">
+    </form>
+
+    <!-- Table -->
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 border-y border-slate-200">
+        <tr class="text-left text-[10px] tracking-widest text-slate-500">
+          <th class="px-4 py-3 font-semibold">JOB</th>
+          <th class="px-4 py-3 font-semibold">STATUS</th>
+          <th class="px-4 py-3 font-semibold">APPLICATIONS</th>
+          <th class="px-4 py-3 font-semibold">CREATED</th>
+          <th class="px-4 py-3 font-semibold text-right">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for job in jobs %}
+        <tr>
+          <td class="px-4 py-4">
+            <div class="font-medium text-slate-900">{{ job.title }}</div>
+            <div class="text-xs text-slate-500">{{ job.department }}</div>
+          </td>
+          <td class="px-4 py-4">
+            {% if job.status == 'active' %}
+              <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">● Active</span>
+            {% elif job.status == 'draft' %}
+              <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">● Draft</span>
+            {% else %}
+              <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">● Closed</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-4"><span class="font-semibold">0</span> <span class="text-xs text-slate-500">candidates</span></td>
+          <td class="px-4 py-4 text-slate-600">{{ job.created_at|date:"d M Y" }}</td>
+          <td class="px-4 py-4 text-right">
+            <a href="#" class="text-xs border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-50">View Job</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-4 py-10 text-center text-slate-500">No jobs found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Footer -->
+    <div class="px-4 py-3 border-t border-slate-200 text-xs text-slate-500">
+      Showing <b>{{ jobs|length }}</b> of <b>{{ counts.all }}</b> jobs
+    </div>
+  </div>
+</div>
+{% endblock %}

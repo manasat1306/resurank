@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ResuRank{% endblock %} | ResuRank</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="{% static 'resume_analyzer/img/logo.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .grid-bg {
+      background-color: #f8fafc;
+      background-image:
+        linear-gradient(#eef2f7 1px, transparent 1px),
+        linear-gradient(90deg, #eef2f7 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="w-48 shrink-0 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 left-0">
+      <!-- Logo -->
+      <div class="h-[52px] px-3 flex items-center gap-2 border-b border-slate-200">
+        <img src="{% static 'resume_analyzer/img/logo.svg' %}" class="h-8 w-8" alt="ResuRank logo">
+        <div class="leading-tight">
+          <div class="text-sm font-bold">ResuRank</div>
+          <div class="text-[8px] tracking-widest text-slate-400 font-medium whitespace-nowrap">RECRUITER WORKSPACE</div>
+        </div>
+      </div>
+
+      <!-- Menu -->
+      <nav class="flex-1 p-2 space-y-1 text-[13px]">
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+          <i class="ti ti-layout-dashboard text-base"></i> Dashboard
+        </a>
+        <a href="{% url 'job_list' %}"
+           class="flex items-center gap-2 px-3 py-2 rounded-lg
+           {% if request.resolver_match.url_name == 'job_list' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+          <i class="ti ti-briefcase text-base"></i> Jobs
+        </a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+          <i class="ti ti-git-compare text-base"></i> Compare
+        </a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+          <i class="ti ti-file-text text-base"></i> Analyze Resume
+        </a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+          <i class="ti ti-chart-bar text-base"></i> Analytics
+        </a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+          <i class="ti ti-settings text-base"></i> Settings
+        </a>
+      </nav>
+
+      <!-- Logged-in user -->
+      <div class="p-3 border-t border-slate-200 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold flex items-center justify-center">
+          {{ request.user.username|slice:":2"|upper }}
+        </div>
+        <div class="leading-tight">
+          <div class="text-xs font-semibold">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="text-[11px] text-slate-400">Recruiter</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 ml-48 flex flex-col">
+      <!-- Top bar -->
+      <header class="h-[52px] bg-white border-b border-slate-200 px-6 flex items-center justify-between">
+        <div class="leading-tight">
+          <div class="text-base font-semibold">{% block page_title %}{% endblock %}</div>
+          <div class="text-xs text-slate-500">{% block page_subtitle %}{% endblock %}</div>
+        </div>
+        <div>{% block top_actions %}{% endblock %}</div>
+      </header>
+
+      <!-- Page content -->
+      <main class="grid-bg flex-1 p-8">
+        <div class="max-w-5xl mx-auto">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+
+  </div>
+</body>
+</html>
