@@ -1,6 +1,6 @@
 import pdfplumber
 from django.shortcuts import render
-from .models import Resume, JobDescription
+from .models import Resume, Job
 from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
 
 import re #regular expressions
@@ -240,7 +240,7 @@ def match_resume_to_job(request):
         selected_resume = Resume.objects.get(id=resume_id)
 
         # Save the job description
-        job = JobDescription.objects.create(
+        job = Job.objects.create(
             recruiter=request.user,
             title=jd_title,
             description_text=jd_text
@@ -332,13 +332,13 @@ def upload_resume(request):
 
 def job_ranking(request):
     job_description_text = ""
-    saved_jds = JobDescription.objects.filter(recruiter=request.user).order_by('-id')
+    saved_jds = Job.objects.filter(recruiter=request.user).order_by('-id')
     results = []
 
     if request.method == 'POST':
         selected_jd_id = request.POST.get('saved_jd')
         if selected_jd_id:
-            jd_obj = JobDescription.objects.get(id=selected_jd_id)
+            jd_obj = Job.objects.get(id=selected_jd_id)
             job_description_text = jd_obj.description_text
         else:
             job_description_text = request.POST.get('job_description', '')

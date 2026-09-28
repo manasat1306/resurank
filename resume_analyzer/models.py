@@ -14,7 +14,7 @@ class Resume(models.Model):
         return self.file_name
 
 
-class JobDescription(models.Model):
+class Job(models.Model):
     recruiter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     description_text = models.TextField()
