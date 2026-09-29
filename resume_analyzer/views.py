@@ -1,5 +1,5 @@
 import pdfplumber
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Resume, Job
 from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
 
@@ -230,21 +230,16 @@ def calculate_overall_score(ats_result, action_result, skills_list, weights=None
 @login_required
 def match_resume_to_job(request):
     result = None
-    resumes = Resume.objects.filter(recruiter=request.user)  # changed from .all()
+    resumes = Resume.objects.filter(recruiter=request.user)
+    saved_jds = Job.objects.filter(recruiter=request.user).order_by('-id')
 
     if request.method == 'POST':
         resume_id = request.POST.get('resume_id')
-        jd_text = request.POST.get('job_description')
-        jd_title = request.POST.get('job_title', 'Untitled Job')
+        selected_jd_id = request.POST.get('saved_jd')
 
-        selected_resume = Resume.objects.get(id=resume_id)
-
-        # Save the job description
-        job = Job.objects.create(
-            recruiter=request.user,
-            title=jd_title,
-            description_text=jd_text
-        )
+        selected_resume = get_object_or_404(Resume, id=resume_id, recruiter=request.user)
+        selected_job = get_object_or_404(Job, id=selected_jd_id, recruiter=request.user)
+        jd_text = selected_job.description_text
 
         # Calculate match
         match_percentage = calculate_match_percentage(selected_resume.skills, jd_text)
@@ -255,7 +250,7 @@ def match_resume_to_job(request):
 
         result = {
             'resume_name': selected_resume.file_name,
-            'job_title': job.title,
+            'job_title': selected_job.title,
             'match_percentage': match_percentage,
             'matched_skills': skills_result['matched_skills'],
             'missing_skills': skills_result['missing_skills'],
@@ -267,6 +262,7 @@ def match_resume_to_job(request):
 
     return render(request, 'resume_analyzer/match.html', {
         'resumes': resumes,
+        'saved_jds': saved_jds,
         'result': result
     })
 

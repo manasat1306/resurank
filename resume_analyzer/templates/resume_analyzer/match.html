@@ -45,11 +45,13 @@
                     {% endfor %}
                 </select>
 
-                <label>Job Title</label>
-                <input type="text" name="job_title" placeholder="e.g. Backend Developer" class="file-input" style="margin-bottom: 14px;">
-
-                <label>Job Description</label>
-                <textarea name="job_description" rows="8" required class="file-input" style="margin-bottom: 14px;" placeholder="Paste the full job description here..."></textarea>
+                <label>Select Job</label>
+                <select name="saved_jd" required class="file-input" style="margin-bottom: 14px;">
+                    <option value="">-- choose a job --</option>
+                    {% for jd in saved_jds %}
+                        <option value="{{ jd.id }}">{{ jd.title }}</option>
+                    {% endfor %}
+                </select>
 
                 <button type="submit" class="stamp-btn" style="align-self: flex-start;">Compare</button>
             </form>
