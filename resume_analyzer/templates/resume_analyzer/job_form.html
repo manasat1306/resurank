@@ -1,0 +1,142 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+{% block title %}{% if is_edit %}Edit Job{% else %}Create Job{% endif %}{% endblock %}
+{% block page_title %}Jobs{% endblock %}
+{% block page_subtitle %}Create, manage, and track your hiring opportunities.{% endblock %}
+
+{% block content %}
+<form method="post" class="w-full">
+  {% csrf_token %}
+
+  <a href="{% url 'job_list' %}" class="text-xs text-slate-500 hover:text-indigo-600">← Back to Jobs</a>
+    <h1 class="text-2xl font-bold text-slate-900 mt-2">{% if is_edit %}Edit job{% else %}Create a new job{% endif %}</h1>
+  <p class="text-sm text-slate-500 mb-5">Define the role, requirements, and scoring criteria for candidate matching.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+
+    <!-- LEFT: form cards -->
+    <div class="lg:col-span-2 space-y-5">
+
+      <!-- Basic info -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <h2 class="font-semibold text-slate-900">Basic Information</h2>
+        <p class="text-xs text-slate-500 mb-4">Core details that identify this role across your workspace.</p>
+
+        <label class="text-xs font-medium text-slate-700">Job Title</label>
+        <div class="mb-3">{{ form.title }}</div>
+        {% for e in form.title.errors %}<p class="text-xs text-red-600 -mt-2 mb-3">{{ e }}</p>{% endfor %}
+
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <label class="text-xs font-medium text-slate-700">Department</label>
+            {{ form.department }}
+          </div>
+          <div>
+            <label class="text-xs font-medium text-slate-700">Location</label>
+            {{ form.location }}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-medium text-slate-700">Experience</label>
+            {{ form.experience }}
+          </div>
+          <div>
+            <label class="text-xs font-medium text-slate-700">Employment Type</label>
+            {{ form.job_type }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <h2 class="font-semibold text-slate-900">Job Description</h2>
+        <p class="text-xs text-slate-500 mb-4">What candidates will read before applying.</p>
+        {{ form.description_text }}
+        {% for e in form.description_text.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+      </div>
+
+      <!-- Skills -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <h2 class="font-semibold text-slate-900">Skills</h2>
+        <p class="text-xs text-slate-500 mb-4">Required skills drive the Skill Match part of the final score.</p>
+
+        <label class="text-xs font-medium text-slate-700">Required Skills</label>
+        <p class="text-[11px] text-slate-500 mb-1">Skills that are essential for this role. Type a skill and press Enter.</p>
+        <div id="req-box" class="flex flex-wrap items-center gap-2 border border-slate-200 rounded-lg px-3 py-2 min-h-[42px] cursor-text">
+          <input type="text" placeholder="Add another skill..." class="flex-1 min-w-[120px] text-sm outline-none bg-transparent">
+        </div>
+        <input type="hidden" name="required_skills" id="req-hidden" value="{{ form.required_skills.value|default:'' }}">
+        {% for e in form.required_skills.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+
+        <label class="text-xs font-medium text-slate-700 mt-5 block">Preferred Skills <span class="text-slate-400 font-normal">(nice to have)</span></label>
+        <p class="text-[11px] text-slate-500 mb-1">Shown to the recruiter only. They do not change the score.</p>
+        <div id="pref-box" class="flex flex-wrap items-center gap-2 border border-slate-200 rounded-lg px-3 py-2 min-h-[42px] cursor-text">
+          <input type="text" placeholder="Add another skill..." class="flex-1 min-w-[120px] text-sm outline-none bg-transparent">
+        </div>
+        <input type="hidden" name="preferred_skills" id="pref-hidden" value="{{ form.preferred_skills.value|default:'' }}">
+      </div>
+
+      <!-- Education -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <h2 class="font-semibold text-slate-900">Education</h2>
+        <p class="text-xs text-slate-500 mb-4">Minimum qualification expected for this role.</p>
+        <label class="text-xs font-medium text-slate-700">Minimum Education / Qualification</label>
+        {{ form.education }}
+      </div>
+    </div>
+
+    <!-- RIGHT: scoring card -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 lg:sticky lg:top-6">
+      <h2 class="font-semibold text-slate-900">How Candidates Are Scored</h2>
+      <p class="text-xs text-slate-500 mb-4">Choose how skills and resume relevance shape each match.</p>
+
+      <div class="flex justify-between items-end">
+        <div>
+          <div class="text-xs font-semibold">Skill Match</div>
+          <div class="text-[11px] text-slate-500">How well the candidate has the required skills</div>
+        </div>
+        <div id="sw-label" class="text-2xl font-bold text-indigo-600">70%</div>
+      </div>
+      <input type="range" name="skill_weight" id="sw" min="0" max="100" step="5"
+             value="{{ form.skill_weight.value|default:70 }}" class="w-full accent-indigo-600 my-3">
+
+      <div class="flex justify-between items-end">
+        <div>
+          <div class="text-xs font-semibold">Resume Similarity</div>
+          <div class="text-[11px] text-slate-500">How closely the resume matches the job description</div>
+        </div>
+        <div id="sim-label" class="text-2xl font-bold text-purple-600">30%</div>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-1">Adjusts automatically to the remaining weight.</p>
+
+      <div class="mt-4 flex justify-between items-center border border-indigo-100 bg-indigo-50 rounded-lg px-3 py-2 text-xs font-semibold">
+        <span>Total</span><span class="text-indigo-600 text-sm">100%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
+    <p class="text-xs text-slate-500">You can edit all job details after publishing.</p>
+    <div class="flex gap-2">
+      {% if is_edit %}
+        <button type="submit" name="action" value="save"
+                class="text-sm border border-slate-200 bg-white rounded-lg px-4 py-2 hover:bg-slate-50">Save Changes</button>
+        {% if job.status == 'draft' %}
+          <button type="submit" name="action" value="publish"
+                  class="text-sm bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700">Publish Job</button>
+        {% endif %}
+      {% else %}
+        <button type="submit" name="action" value="draft"
+                class="text-sm border border-slate-200 bg-white rounded-lg px-4 py-2 hover:bg-slate-50">Save Draft</button>
+        <button type="submit" name="action" value="publish"
+                class="text-sm bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700">Publish Job</button>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<script src="{% static 'resume_analyzer/js/job_form.js' %}"></script>
+{% endblock %}

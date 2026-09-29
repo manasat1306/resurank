@@ -5,11 +5,11 @@
 {% block page_subtitle %}Create, manage, and track your hiring opportunities.{% endblock %}
 
 {% block top_actions %}
-  <a href="#" class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700">+ Create Job</a>
+  <a href="{% url 'job_create' %}" class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700">+ Create Job</a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto">
+<div class="w-full">
 
   <!-- Heading -->
   <div class="text-[10px] tracking-widest text-indigo-600 font-semibold">HIRING WORKSPACE</div>
@@ -69,8 +69,21 @@
           </td>
           <td class="px-4 py-4"><span class="font-semibold">0</span> <span class="text-xs text-slate-500">candidates</span></td>
           <td class="px-4 py-4 text-slate-600">{{ job.created_at|date:"d M Y" }}</td>
-          <td class="px-4 py-4 text-right">
-            <a href="#" class="text-xs border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-50">View Job</a>
+                    <td class="px-4 py-4 text-right">
+            <div class="flex justify-end gap-2">
+              <a href="{% url 'job_detail' job.pk %}"
+                 class="text-xs border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-50">View Job</a>
+
+              <a href="{% url 'job_detail' job.pk %}"
+                 class="text-xs border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-50">View Applicants</a>
+
+              {% if job.status == 'active' %}
+              <form method="post" action="{% url 'job_close' job.pk %}" onsubmit="return confirm('Close this job?');">
+                {% csrf_token %}
+                <button class="text-xs border border-red-200 text-red-600 rounded-md px-3 py-1.5 hover:bg-red-50">Close</button>
+              </form>
+              {% endif %}
+            </div>
           </td>
         </tr>
         {% empty %}

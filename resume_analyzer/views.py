@@ -330,6 +330,7 @@ def upload_resume(request):
         })
     return render(request, 'resume_analyzer/upload.html')
 
+@login_required
 def job_ranking(request):
     job_description_text = ""
     saved_jds = Job.objects.filter(recruiter=request.user).order_by('-id')
