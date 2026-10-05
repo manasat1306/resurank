@@ -1,0 +1,148 @@
+{% extends 'candidate/base.html' %}
+{% load static %}
+{% block title %}Jobs{% endblock %}
+
+{% block content %}
+
+  <!-- HERO -->
+  <section class="bg-gradient-to-b from-indigo-50 to-slate-50 border-b border-slate-200 px-6 py-16">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-5xl font-extrabold tracking-tight">
+        Find your next <span class="text-indigo-600">opportunity.</span>
+      </h1>
+      <p class="mt-4 text-lg text-slate-600">
+        Explore active roles and find opportunities that match your skills.
+      </p>
+
+      <div class="mt-8 bg-white rounded-full shadow-sm border border-slate-200 px-5 py-3 flex items-center gap-3 text-left">
+        <i class="ti ti-search text-slate-400 text-lg"></i>
+        <span class="text-slate-400">Search jobs by title, skill, or keyword...</span>
+      </div>
+
+      <div class="mt-4 flex flex-wrap justify-center gap-2">
+        <span class="bg-white border border-slate-200 rounded-full px-4 py-2 text-sm text-slate-600">Department</span>
+        <span class="bg-white border border-slate-200 rounded-full px-4 py-2 text-sm text-slate-600">Job Type</span>
+        <span class="bg-white border border-slate-200 rounded-full px-4 py-2 text-sm text-slate-600">Experience</span>
+        <span class="bg-white border border-slate-200 rounded-full px-4 py-2 text-sm text-slate-600">Location</span>
+        <span class="bg-white border border-slate-200 rounded-full px-4 py-2 text-sm font-medium text-slate-900">Newest first</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOB LIST -->
+  <section class="max-w-6xl mx-auto px-6 py-10">
+    <p class="text-sm text-slate-500 mb-6">
+      Showing <span class="font-semibold text-slate-900">{{ jobs|length }}</span> of
+      <span class="font-semibold text-slate-900">{{ jobs|length }}</span> active roles
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for job in jobs %}
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col">
+          <div class="flex items-start justify-between">
+            <h2 class="text-lg font-bold">{{ job.title }}</h2>
+            <span class="shrink-0 bg-green-50 text-green-700 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
+              <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span> Active
+            </span>
+          </div>
+          <p class="text-sm text-slate-500 mt-1 flex items-center gap-1">
+            <i class="ti ti-building text-base"></i> {{ job.department|default:"General" }}
+          </p>
+
+          <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+            {% if job.location %}
+              <span class="flex items-center gap-1"><i class="ti ti-map-pin text-base"></i> {{ job.location }}</span>
+            {% endif %}
+            <span class="flex items-center gap-1"><i class="ti ti-briefcase text-base"></i> {{ job.get_job_type_display }}</span>
+            {% if job.experience %}
+              <span class="flex items-center gap-1"><i class="ti ti-clock text-base"></i> {{ job.experience }}</span>
+            {% endif %}
+          </div>
+
+          {% if job.required_skills %}
+            <div class="mt-4 flex flex-wrap gap-2">
+              {% for skill in job.required_skills|slice:":4" %}
+                <span class="bg-indigo-50 text-indigo-600 text-xs font-medium px-3 py-1 rounded-full">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="mt-auto pt-5 flex items-center justify-between">
+            <span class="text-xs text-slate-400 flex items-center gap-1">
+              <i class="ti ti-calendar text-base"></i> Posted {{ job.created_at|timesince }} ago
+            </span>
+            <a href="{% url 'candidate:job_detail' job.id %}"
+              data-modal-open="modal-{{ job.id }}"
+              class="bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-indigo-700">
+              View Job
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-slate-500">No active jobs right now.</p>
+      {% endfor %}
+    </div>
+    {% for job in jobs %}
+      <div id="modal-{{ job.id }}" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+        <div data-modal-close class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+
+        <div class="relative bg-white rounded-3xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8">
+          <button type="button" data-modal-close class="absolute top-5 right-5 text-slate-500 hover:text-slate-900">
+            <i class="ti ti-x text-2xl"></i>
+          </button>
+
+          <span class="bg-green-50 text-green-700 text-xs font-medium px-3 py-1 rounded-full inline-flex items-center gap-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span> Active
+          </span>
+          <h2 class="text-3xl font-bold mt-3">{{ job.title }}</h2>
+
+          <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+            <span class="flex items-center gap-1"><i class="ti ti-building text-base"></i> {{ job.department|default:"General" }}</span>
+            {% if job.location %}
+              <span class="flex items-center gap-1"><i class="ti ti-map-pin text-base"></i> {{ job.location }}</span>
+            {% endif %}
+            <span class="flex items-center gap-1"><i class="ti ti-briefcase text-base"></i> {{ job.get_job_type_display }}</span>
+            {% if job.experience %}
+              <span class="flex items-center gap-1"><i class="ti ti-clock text-base"></i> {{ job.experience }}</span>
+            {% endif %}
+          </div>
+          <div class="mt-1 text-sm text-slate-400 flex items-center gap-1">
+            <i class="ti ti-calendar text-base"></i> Posted {{ job.created_at|timesince }} ago
+          </div>
+
+          <p class="mt-5 text-slate-600 leading-relaxed">{{ job.description_text }}</p>
+
+          {% if job.required_skills %}
+            <h3 class="mt-6 text-sm font-bold tracking-wide">REQUIRED SKILLS</h3>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {% for skill in job.required_skills %}
+                <span class="bg-indigo-50 text-indigo-600 text-xs font-medium px-3 py-1 rounded-full">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if job.preferred_skills %}
+            <h3 class="mt-5 text-sm font-bold tracking-wide">NICE TO HAVE</h3>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {% for skill in job.preferred_skills %}
+                <span class="bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1 rounded-full">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="mt-8 pt-6 border-t border-slate-200 flex justify-end gap-3">
+            <button type="button" data-modal-close class="border border-slate-200 text-sm font-medium px-5 py-3 rounded-full hover:bg-slate-50">
+              Close
+            </button>
+            <a href="{% url 'candidate:apply' job.id %}" class="bg-indigo-600 text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-indigo-700">
+              Apply with resume
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+  <script src="{% static 'candidate/js/modal.js' %}"></script>
+
+{% endblock %}

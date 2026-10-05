@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+import uuid
+  
 class Resume(models.Model):
     recruiter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     file_name = models.CharField(max_length=255)
@@ -47,3 +48,69 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+class Application(models.Model):
+    STATUS_CHOICES = [
+        ('new', 'New'),
+        ('under_review', 'Under Review'),
+        ('shortlisted', 'Shortlisted'),
+        ('interview', 'Interview'),
+        ('selected', 'Selected'),
+        ('rejected', 'Rejected'),
+    ]
+
+    SOURCE_CHOICES = [
+        ('applied', 'Applied'),
+        ('recruiter_upload', 'Recruiter Upload'),
+    ]
+
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='applications'
+    )
+
+    candidate_name = models.CharField(max_length=255)
+    candidate_email = models.EmailField()
+    candidate_phone = models.CharField(max_length=30, blank=True)
+
+    resume_file = models.FileField(upload_to='applications/resumes/')
+    consent_given = models.BooleanField(default=False)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='new',
+        db_index=True
+    )
+
+    source = models.CharField(
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default='applied',
+        db_index=True
+    )
+
+    # Used later for candidate ranking / analysis
+    final_score = models.FloatField(default=0, db_index=True)
+    skill_score = models.FloatField(default=0)
+    similarity_score = models.FloatField(default=0)
+
+    matched_skills = models.JSONField(default=list, blank=True)
+    missing_skills = models.JSONField(default=list, blank=True)
+    severity_analysis = models.JSONField(default=list, blank=True)
+
+    # Token used by the candidate tracking page
+    tracking_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        db_index=True
+    )
+
+    applied_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.candidate_name} - {self.job.title}"    

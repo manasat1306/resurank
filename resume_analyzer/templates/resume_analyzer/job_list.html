@@ -1,103 +1,450 @@
 {% extends 'resume_analyzer/base.html' %}
 
 {% block title %}Jobs{% endblock %}
+
 {% block page_title %}Jobs{% endblock %}
-{% block page_subtitle %}Create, manage, and track your hiring opportunities.{% endblock %}
+
+{% block page_subtitle %}
+Create, manage, and track your hiring opportunities.
+{% endblock %}
 
 {% block top_actions %}
-  <a href="{% url 'job_create' %}" class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700">+ Create Job</a>
+<a href="{% url 'job_create' %}"
+   class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700">
+    <i class="ti ti-plus text-base"></i>
+    Create Job
+</a>
 {% endblock %}
 
 {% block content %}
-<div class="w-full">
 
-  <!-- Heading -->
-  <div class="text-[10px] tracking-widest text-indigo-600 font-semibold">HIRING WORKSPACE</div>
-  <h1 class="text-2xl font-bold text-slate-900">Your Jobs</h1>
-  <p class="text-sm text-slate-500 mb-5">Manage your open roles and keep track of candidate activity.</p>
+<div class="w-full max-w-7xl mx-auto space-y-6">
 
-  <!-- Tabs -->
-  <div class="flex gap-2 mb-5">
-    {% for key, label in tabs %}
-      <a href="?status={{ key }}{% if q %}&q={{ q }}{% endif %}"
-         class="flex items-center gap-2 px-3 py-1.5 rounded-md border text-sm
-                {% if tab == key %}bg-indigo-50 border-indigo-300 text-indigo-700{% else %}bg-white border-slate-200 text-slate-700 hover:bg-slate-50{% endif %}">
-        {{ label }}
-        <span class="text-xs bg-slate-100 text-slate-600 rounded-full px-1.5">
-          {% if key == 'all' %}{{ counts.all }}{% elif key == 'active' %}{{ counts.active }}{% elif key == 'draft' %}{{ counts.draft }}{% else %}{{ counts.closed }}{% endif %}
-        </span>
-      </a>
-    {% endfor %}
-  </div>
+    <!-- Page heading -->
+    <div>
+        <div class="text-[10px] font-semibold tracking-[0.22em] text-indigo-600">
+            HIRING WORKSPACE
+        </div>
 
-  <!-- Card -->
-  <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
+        <div class="mt-1 flex items-end justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+                    Your Jobs
+                </h1>
 
-    <!-- Search -->
-    <form method="get" class="p-4">
-      <input type="hidden" name="status" value="{{ tab }}">
-      <input type="text" name="q" value="{{ q }}" placeholder="Search jobs..."
-             class="w-full max-w-sm border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-indigo-400">
-    </form>
-
-    <!-- Table -->
-    <table class="w-full text-sm">
-      <thead class="bg-slate-50 border-y border-slate-200">
-        <tr class="text-left text-[10px] tracking-widest text-slate-500">
-          <th class="px-4 py-3 font-semibold">JOB</th>
-          <th class="px-4 py-3 font-semibold">STATUS</th>
-          <th class="px-4 py-3 font-semibold">APPLICATIONS</th>
-          <th class="px-4 py-3 font-semibold">CREATED</th>
-          <th class="px-4 py-3 font-semibold text-right">ACTIONS</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100">
-        {% for job in jobs %}
-        <tr>
-          <td class="px-4 py-4">
-            <div class="font-medium text-slate-900">{{ job.title }}</div>
-            <div class="text-xs text-slate-500">{{ job.department }}</div>
-          </td>
-          <td class="px-4 py-4">
-            {% if job.status == 'active' %}
-              <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">● Active</span>
-            {% elif job.status == 'draft' %}
-              <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">● Draft</span>
-            {% else %}
-              <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">● Closed</span>
-            {% endif %}
-          </td>
-          <td class="px-4 py-4"><span class="font-semibold">0</span> <span class="text-xs text-slate-500">candidates</span></td>
-          <td class="px-4 py-4 text-slate-600">{{ job.created_at|date:"d M Y" }}</td>
-                    <td class="px-4 py-4 text-right">
-            <div class="flex justify-end gap-2">
-              <a href="{% url 'job_detail' job.pk %}"
-                 class="text-xs border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-50">View Job</a>
-
-              <a href="{% url 'job_detail' job.pk %}"
-                 class="text-xs border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-50">View Applicants</a>
-
-              {% if job.status == 'active' %}
-              <form method="post" action="{% url 'job_close' job.pk %}" onsubmit="return confirm('Close this job?');">
-                {% csrf_token %}
-                <button class="text-xs border border-red-200 text-red-600 rounded-md px-3 py-1.5 hover:bg-red-50">Close</button>
-              </form>
-              {% endif %}
+                <p class="mt-1 text-sm text-slate-500">
+                    Manage your open roles and keep track of candidate activity.
+                </p>
             </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5" class="px-4 py-10 text-center text-slate-500">No jobs found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <!-- Footer -->
-    <div class="px-4 py-3 border-t border-slate-200 text-xs text-slate-500">
-      Showing <b>{{ jobs|length }}</b> of <b>{{ counts.all }}</b> jobs
+        </div>
     </div>
-  </div>
+
+
+    <!-- Status filters -->
+    <div class="flex flex-wrap gap-2">
+
+        {% for key, label in tabs %}
+
+        <a href="?status={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}"
+           class="group inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition
+           {% if tab == key %}
+               border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm
+           {% else %}
+               border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-700
+           {% endif %}">
+
+            {{ label }}
+
+            <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold
+                {% if tab == key %}
+                    bg-white text-indigo-600
+                {% else %}
+                    bg-slate-100 text-slate-500
+                {% endif %}">
+                {% if key == 'all' %}
+                    {{ counts.all }}
+                {% elif key == 'active' %}
+                    {{ counts.active }}
+                {% elif key == 'draft' %}
+                    {{ counts.draft }}
+                {% else %}
+                    {{ counts.closed }}
+                {% endif %}
+            </span>
+
+        </a>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- Main jobs card -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <!-- Toolbar -->
+        <div class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <form method="get" class="relative w-full sm:max-w-md">
+
+                <input type="hidden" name="status" value="{{ tab }}">
+
+                <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400"></i>
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Search jobs..."
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100"
+                >
+
+            </form>
+
+            <button
+                type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm">
+                <i class="ti ti-sort-descending text-base"></i>
+                Newest first
+            </button>
+
+        </div>
+
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+
+            <table class="min-w-full text-sm">
+
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50/70 text-left">
+                        <th class="px-6 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">
+                            JOB
+                        </th>
+
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">
+                            STATUS
+                        </th>
+
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">
+                            APPLICATIONS
+                        </th>
+
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">
+                            CREATED
+                        </th>
+
+                        <th class="px-6 py-4 text-right text-[10px] font-semibold tracking-[0.16em] text-slate-400">
+                            ACTIONS
+                        </th>
+                    </tr>
+                </thead>
+
+
+                <tbody class="divide-y divide-slate-100">
+
+                {% for job in jobs %}
+
+                    <tr class="group transition hover:bg-slate-50/70">
+
+                        <!-- Job -->
+                        <td class="px-6 py-5">
+
+                            <div class="flex items-center gap-3">
+
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                    <i class="ti ti-briefcase text-lg"></i>
+                                </div>
+
+                                <div class="min-w-0">
+                                    <a href="{% url 'job_detail' job.pk %}"
+                                       class="font-semibold text-slate-900 transition hover:text-indigo-600">
+                                        {{ job.title }}
+                                    </a>
+
+                                    <div class="mt-0.5 text-xs text-slate-500">
+                                        {{ job.department|default:"General" }}
+                                        {% if job.location %}
+                                            · {{ job.location }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Status -->
+                        <td class="px-5 py-5">
+
+                            {% if job.status == 'active' %}
+
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    Active
+                                </span>
+
+                            {% elif job.status == 'draft' %}
+
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                    Draft
+                                </span>
+
+                            {% else %}
+
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                    Closed
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Applications -->
+                        <td class="px-5 py-5">
+
+                            <div class="font-semibold text-slate-900">
+                                0
+                            </div>
+
+                            <div class="text-xs text-slate-400">
+                                applications
+                            </div>
+
+                        </td>
+
+
+                        <!-- Created -->
+                        <td class="px-5 py-5 text-slate-600">
+                            {{ job.created_at|date:"d M Y" }}
+                        </td>
+
+
+                        <!-- Actions -->
+                        <td class="px-6 py-5">
+
+                            <div class="flex items-center justify-end gap-2">
+
+                                <a href="{% url 'job_detail' job.pk %}"
+                                   class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="ti ti-eye text-sm"></i>
+                                    View Job
+                                </a>
+
+
+                                <!-- Three-dot menu -->
+                                <div class="relative">
+
+                                    <button
+                                        type="button"
+                                        onclick="toggleJobMenu('menu-{{ job.pk }}')"
+                                        class="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600">
+                                        <i class="ti ti-dots-vertical text-lg"></i>
+                                    </button>
+
+
+                                    <div
+                                        id="menu-{{ job.pk }}"
+                                        class="absolute right-0 z-20 mt-2 hidden w-44 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
+
+                                        <a href="{% url 'job_detail' job.pk %}"
+                                           class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                                            <i class="ti ti-file-description text-sm text-slate-400"></i>
+                                            Job Details
+                                        </a>
+
+                                        <a href="{% url 'job_edit' job.pk %}"
+                                           class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                                            <i class="ti ti-edit text-sm text-slate-400"></i>
+                                            Edit
+                                        </a>
+
+
+                                        {% if job.status == 'active' %}
+
+                                            <form method="post"
+                                                  action="{% url 'job_close' job.pk %}"
+                                                  onsubmit="return confirm('Close this job?');">
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-rose-600 hover:bg-rose-50">
+                                                    <i class="ti ti-circle-x text-sm"></i>
+                                                    Close
+                                                </button>
+
+                                            </form>
+
+                                        {% elif job.status == 'draft' %}
+
+                                            <form method="post"
+                                                  action="{% url 'job_publish' job.pk %}">
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-indigo-600 hover:bg-indigo-50">
+                                                    <i class="ti ti-send text-sm"></i>
+                                                    Publish
+                                                </button>
+
+                                            </form>
+
+                                        {% elif job.status == 'closed' %}
+
+                                            <form method="post"
+                                                  action="{% url 'job_publish' job.pk %}">
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-indigo-600 hover:bg-indigo-50">
+                                                    <i class="ti ti-refresh text-sm"></i>
+                                                    Publish
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <!-- Empty state -->
+                    <tr>
+                        <td colspan="5" class="px-6 py-16">
+
+                            <div class="flex flex-col items-center justify-center text-center">
+
+                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+                                    <i class="ti ti-briefcase-off text-2xl"></i>
+                                </div>
+
+                                <h3 class="mt-4 text-base font-semibold text-slate-900">
+                                    No jobs found
+                                </h3>
+
+                                <p class="mt-1 max-w-sm text-sm text-slate-500">
+                                    Try changing your search or filters.
+                                </p>
+
+                            </div>
+
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- Footer / Pagination -->
+        <div class="flex flex-col gap-3 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div class="text-xs text-slate-500">
+                Showing
+                <span class="font-semibold text-slate-700">
+                    {{ page_obj.start_index|default:0 }}–{{ page_obj.end_index|default:0 }}
+                </span>
+                of
+                <span class="font-semibold text-slate-700">
+                    {{ counts.all }}
+                </span>
+                jobs
+            </div>
+
+
+            {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="flex items-center gap-1">
+
+                {% if page_obj.has_previous %}
+
+                    <a href="?status={{ tab }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ page_obj.previous_page_number }}"
+                       class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                        <i class="ti ti-chevron-left"></i>
+                        Previous
+                    </a>
+
+                {% endif %}
+
+
+                {% for num in page_obj.paginator.page_range %}
+
+                    <a href="?status={{ tab }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ num }}"
+                       class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-xs font-semibold
+                       {% if page_obj.number == num %}
+                           border-indigo-200 bg-indigo-50 text-indigo-700
+                       {% else %}
+                           border-slate-200 bg-white text-slate-600 hover:bg-slate-50
+                       {% endif %}">
+                        {{ num }}
+                    </a>
+
+                {% endfor %}
+
+
+                {% if page_obj.has_next %}
+
+                    <a href="?status={{ tab }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ page_obj.next_page_number }}"
+                       class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                        Next
+                        <i class="ti ti-chevron-right"></i>
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
 </div>
+
+
+<script>
+function toggleJobMenu(id) {
+    const menu = document.getElementById(id);
+
+    document.querySelectorAll('[id^="menu-"]').forEach(item => {
+        if (item !== menu) {
+            item.classList.add('hidden');
+        }
+    });
+
+    menu.classList.toggle('hidden');
+}
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.relative')) {
+        document.querySelectorAll('[id^="menu-"]').forEach(item => {
+            item.classList.add('hidden');
+        });
+    }
+});
+</script>
+
 {% endblock %}

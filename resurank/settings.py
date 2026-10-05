@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'resume_analyzer',
+    'candidate',
 ]
 
 MIDDLEWARE = [

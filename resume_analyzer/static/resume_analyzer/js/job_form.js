@@ -1,50 +1,165 @@
-// weight slider
-const sw = document.getElementById('sw');
-function updateWeights() {
-  document.getElementById('sw-label').textContent = sw.value + '%';
-  document.getElementById('sim-label').textContent = (100 - sw.value) + '%';
-}
-sw.addEventListener('input', updateWeights);
-updateWeights();
+document.addEventListener("DOMContentLoaded", function () {
+    /* -----------------------------
+       SCORE WEIGHT
+    ------------------------------ */
 
-// skill chips
-function setupChips(boxId, hiddenId, chipClass) {
-  const box = document.getElementById(boxId);
-  const hidden = document.getElementById(hiddenId);
-  const input = box.querySelector('input');
-  let skills = hidden.value ? hidden.value.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const slider = document.getElementById("sw");
+    const skillLabel = document.getElementById("sw-label");
+    const similarityLabel = document.getElementById("sim-label");
 
-  function render() {
-    box.querySelectorAll('.chip').forEach(c => c.remove());
-    skills.forEach((s, i) => {
-      const chip = document.createElement('span');
-      chip.className = 'chip text-xs px-2 py-1 rounded-full flex items-center gap-1 ' + chipClass;
-      chip.textContent = s;
-      const x = document.createElement('button');
-      x.type = 'button';
-      x.textContent = '×';
-      x.onclick = () => { skills.splice(i, 1); render(); };
-      chip.appendChild(x);
-      box.insertBefore(chip, input);
-    });
-    hidden.value = skills.join(',');
-  }
+    function updateWeights() {
+        if (!slider) return;
 
-  function add(value) {
-    const v = value.trim();
-    if (v && !skills.some(s => s.toLowerCase() === v.toLowerCase())) skills.push(v);
-    input.value = '';
-    render();
-  }
+        const skill = Number(slider.value || 70);
+        const similarity = 100 - skill;
 
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(input.value); }
-    else if (e.key === 'Backspace' && !input.value && skills.length) { skills.pop(); render(); }
-  });
-  input.addEventListener('blur', () => add(input.value));
-  box.addEventListener('click', () => input.focus());
-  render();
-}
+        if (skillLabel) {
+            skillLabel.textContent = `${skill}%`;
+        }
 
-setupChips('req-box', 'req-hidden', 'bg-indigo-50 text-indigo-700');
-setupChips('pref-box', 'pref-hidden', 'bg-purple-50 text-purple-700');
+        if (similarityLabel) {
+            similarityLabel.textContent = `${similarity}%`;
+        }
+    }
+
+    if (slider) {
+        slider.addEventListener("input", updateWeights);
+        updateWeights();
+    }
+
+
+    /* -----------------------------
+       SKILL CHIPS
+    ------------------------------ */
+
+    function setupSkillBox(boxId, inputId, hiddenId, type) {
+        const box = document.getElementById(boxId);
+        const input = document.getElementById(inputId);
+        const hidden = document.getElementById(hiddenId);
+
+        if (!box || !input || !hidden) return;
+
+        let skills = [];
+
+        function loadInitialSkills() {
+            const value = hidden.value.trim();
+
+            if (!value) return;
+
+            try {
+                const parsed = JSON.parse(value);
+
+                if (Array.isArray(parsed)) {
+                    skills = parsed;
+                    return;
+                }
+            } catch (error) {
+                // Existing form values may be comma-separated.
+            }
+
+            skills = value
+                .split(",")
+                .map(skill => skill.trim())
+                .filter(Boolean);
+        }
+
+        function syncHidden() {
+            hidden.value = skills.join(",");
+        }
+
+        function render() {
+            box.querySelectorAll(".skill-chip").forEach(chip => chip.remove());
+
+            skills.forEach((skill, index) => {
+                const chip = document.createElement("span");
+
+                chip.className =
+                    type === "required"
+                        ? "skill-chip inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700"
+                        : "skill-chip inline-flex items-center gap-1.5 rounded-full border border-purple-100 bg-purple-50 px-3 py-1.5 text-xs font-medium text-purple-700";
+
+                const icon = document.createElement("span");
+                icon.textContent = type === "required" ? "✓" : "+";
+
+                const text = document.createElement("span");
+                text.textContent = skill;
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.className = "ml-1 opacity-60 hover:opacity-100";
+                removeButton.setAttribute("aria-label", `Remove ${skill}`);
+                removeButton.textContent = "×";
+
+                removeButton.addEventListener("click", function () {
+                    skills.splice(index, 1);
+                    syncHidden();
+                    render();
+                });
+
+                chip.appendChild(icon);
+                chip.appendChild(text);
+                chip.appendChild(removeButton);
+
+                box.insertBefore(chip, input);
+            });
+
+            syncHidden();
+        }
+
+        function addSkill(value) {
+            const skill = value.trim();
+
+            if (!skill) return;
+
+            const exists = skills.some(
+                existing =>
+                    existing.toLowerCase() === skill.toLowerCase()
+            );
+
+            if (!exists) {
+                skills.push(skill);
+            }
+
+            input.value = "";
+            render();
+        }
+
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === ",") {
+                event.preventDefault();
+                addSkill(input.value);
+            }
+
+            if (
+                event.key === "Backspace" &&
+                input.value === "" &&
+                skills.length > 0
+            ) {
+                skills.pop();
+                render();
+            }
+        });
+
+        box.addEventListener("click", function () {
+            input.focus();
+        });
+
+        loadInitialSkills();
+        render();
+    }
+
+
+    setupSkillBox(
+        "req-box",
+        "req-input",
+        "req-hidden",
+        "required"
+    );
+
+    setupSkillBox(
+        "pref-box",
+        "pref-input",
+        "pref-hidden",
+        "preferred"
+    );
+});

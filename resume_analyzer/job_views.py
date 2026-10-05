@@ -3,19 +3,24 @@ from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Job
 from .forms import JobForm
+from django.core.paginator import Paginator
 
 
 @login_required
 def job_list(request):
-    # only this recruiter's jobs (data isolation)
+    # Only show jobs belonging to the logged-in recruiter
     all_jobs = Job.objects.filter(recruiter=request.user)
 
     tab = request.GET.get('status', 'all')
     q = request.GET.get('q', '').strip()
 
     jobs = all_jobs
+
+    # Status filter
     if tab in ('active', 'draft', 'closed'):
         jobs = jobs.filter(status=tab)
+
+    # Search
     if q:
         jobs = jobs.filter(
             Q(title__icontains=q) |
@@ -23,6 +28,7 @@ def job_list(request):
             Q(location__icontains=q)
         )
 
+    # Counts
     counts = {
         'all': all_jobs.count(),
         'active': all_jobs.filter(status='active').count(),
@@ -30,12 +36,26 @@ def job_list(request):
         'closed': all_jobs.filter(status='closed').count(),
     }
 
+    # Newest first
+    jobs = jobs.order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(jobs, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'resume_analyzer/job_list.html', {
-        'jobs': jobs.order_by('-created_at'),
+        'jobs': page_obj,
+        'page_obj': page_obj,
         'counts': counts,
         'tab': tab,
         'q': q,
-        'tabs': [('all', 'All Jobs'), ('active', 'Active'), ('draft', 'Draft'), ('closed', 'Closed')],
+        'tabs': [
+            ('all', 'All Jobs'),
+            ('active', 'Active'),
+            ('draft', 'Draft'),
+            ('closed', 'Closed'),
+        ],
     })
 
 @login_required

@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ResuRank{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+  <header class="bg-white border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg viewBox="0 0 64 64" class="h-8 w-8" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#4F46E5"/>
+          <rect x="13" y="34" width="10" height="16" rx="2" fill="#FFFFFF"/>
+          <rect x="27" y="24" width="10" height="26" rx="2" fill="#FFFFFF"/>
+          <rect x="41" y="14" width="10" height="36" rx="2" fill="#FBBF24"/>
+        </svg>
+        <span class="font-bold text-lg">ResuRank</span>
+      </div>
+      <nav class="flex items-center gap-2 text-sm font-medium">
+        <a href="{% url 'candidate:job_list' %}"
+           class="px-4 py-2 rounded-full {% if request.resolver_match.url_name == 'job_list' %}bg-slate-100{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+          Jobs
+        </a>
+        <a href="#" class="px-4 py-2 rounded-full text-slate-600 hover:bg-slate-50">Track Application</a>
+      </nav>
+    </div>
+  </header>
+
+  {% block content %}{% endblock %}
+
+</body>
+</html>

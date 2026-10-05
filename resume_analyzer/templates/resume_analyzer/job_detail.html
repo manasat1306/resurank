@@ -1,203 +1,516 @@
 {% extends 'resume_analyzer/base.html' %}
 
 {% block title %}{{ job.title }}{% endblock %}
+
 {% block page_title %}Jobs{% endblock %}
-{% block page_subtitle %}Create, manage, and track your hiring opportunities.{% endblock %}
+
+{% block page_subtitle %}
+Create, manage, and track your hiring opportunities.
+{% endblock %}
 
 {% block content %}
-<div class="w-full">
-  <a href="{% url 'job_list' %}" class="text-xs text-slate-500 hover:text-indigo-600 flex items-center gap-1">
-    <i class="ti ti-arrow-left"></i> Back to Jobs
-  </a>
 
-  <!-- Header -->
-  <div class="flex items-start justify-between mt-3 mb-5">
-    <div>
-      <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-bold text-slate-900">{{ job.title }}</h1>
-        {% if job.status == 'active' %}
-          <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">● Active</span>
-        {% elif job.status == 'draft' %}
-          <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">● Draft</span>
-        {% else %}
-          <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">● Closed</span>
-        {% endif %}
-      </div>
-      <p class="text-sm text-slate-500 flex items-center gap-4 mt-1">
-        <span class="flex items-center gap-1"><i class="ti ti-building"></i> {{ job.department|default:"-" }}</span>
-        <span class="flex items-center gap-1"><i class="ti ti-map-pin"></i> {{ job.location|default:"-" }}</span>
-        <span class="flex items-center gap-1"><i class="ti ti-clock"></i> {{ job.get_job_type_display }}</span>
-        <span class="flex items-center gap-1"><i class="ti ti-briefcase"></i> {{ job.experience|default:"-" }}</span>
-      </p>
+<div class="w-full max-w-7xl mx-auto space-y-6">
+
+    <!-- Back -->
+    <a href="{% url 'job_list' %}"
+       class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition">
+        <i class="ti ti-arrow-left"></i>
+        Back to Jobs
+    </a>
+
+
+    <!-- Job header -->
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+        <div>
+            <div class="flex flex-wrap items-center gap-3">
+
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+                    {{ job.title }}
+                </h1>
+
+                {% if job.status == 'active' %}
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Active
+                    </span>
+
+                {% elif job.status == 'draft' %}
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                        Draft
+                    </span>
+
+                {% else %}
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                        <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                        Closed
+                    </span>
+                {% endif %}
+
+            </div>
+
+
+            <!-- Metadata -->
+            <div class="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-500">
+
+                <span class="inline-flex items-center gap-1.5">
+                    <i class="ti ti-building"></i>
+                    {{ job.department|default:"-" }}
+                </span>
+
+                <span class="inline-flex items-center gap-1.5">
+                    <i class="ti ti-map-pin"></i>
+                    {{ job.location|default:"-" }}
+                </span>
+
+                <span class="inline-flex items-center gap-1.5">
+                    <i class="ti ti-clock"></i>
+                    {{ job.get_job_type_display }}
+                </span>
+
+                <span class="inline-flex items-center gap-1.5">
+                    <i class="ti ti-briefcase"></i>
+                    {{ job.experience|default:"-" }}
+                </span>
+
+            </div>
+        </div>
+
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+
+            <!-- Applicants: application page will be connected later -->
+            <button
+                type="button"
+                disabled
+                title="Applicants page will be connected when the Application model is added"
+                class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm opacity-60 cursor-not-allowed">
+                <i class="ti ti-users"></i>
+                View Applicants (0)
+            </button>
+
+
+            <a href="{% url 'job_edit' job.pk %}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                <i class="ti ti-pencil"></i>
+                Edit Job
+            </a>
+
+
+            {% if job.status == 'draft' or job.status == 'closed' %}
+
+                <form method="post" action="{% url 'job_publish' job.pk %}">
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+
+                        {% if job.status == 'closed' %}
+                            <i class="ti ti-refresh"></i>
+                            Reopen
+                        {% else %}
+                            <i class="ti ti-send"></i>
+                            Publish
+                        {% endif %}
+
+                    </button>
+                </form>
+
+            {% endif %}
+
+
+            {% if job.status == 'active' %}
+
+                <form method="post"
+                      action="{% url 'job_close' job.pk %}"
+                      onsubmit="return confirm('Close this job?');">
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50">
+                        <i class="ti ti-circle-x"></i>
+                        Close Job
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
     </div>
 
-    <div class="flex gap-2 shrink-0">
-      <a href="{% url 'job_detail' job.pk %}"
-         class="text-sm bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700 flex items-center gap-1">
-        <i class="ti ti-users"></i> View Applicants (0)
-      </a>
-      <a href="{% url 'job_edit' job.pk %}"
-         class="text-sm border border-slate-200 bg-white rounded-lg px-4 py-2 hover:bg-slate-50 flex items-center gap-1">
-        <i class="ti ti-pencil"></i> Edit Job
-      </a>
-      {% if job.status != 'active' %}
-      <form method="post" action="{% url 'job_publish' job.pk %}">
-        {% csrf_token %}
-        <button class="text-sm border border-slate-200 bg-white rounded-lg px-4 py-2 hover:bg-slate-50">
-          {% if job.status == 'closed' %}Reopen{% else %}Publish{% endif %}
-        </button>
-      </form>
-      {% endif %}
-      {% if job.status == 'active' %}
-      <form method="post" action="{% url 'job_close' job.pk %}" onsubmit="return confirm('Close this job?');">
-        {% csrf_token %}
-        <button class="text-sm border border-red-200 text-red-600 bg-white rounded-lg px-4 py-2 hover:bg-red-50">Close Job</button>
-      </form>
-      {% endif %}
-    </div>
-  </div>
 
-  <!-- Application Overview -->
-  <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="ti ti-users text-indigo-600"></i>
-      <h2 class="font-semibold text-slate-900">Application Overview</h2>
-    </div>
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-indigo-50 rounded-lg p-4">
-        <div class="text-2xl font-bold text-slate-900">0</div>
-        <div class="text-xs text-slate-500">Applications</div>
-      </div>
-      <div class="bg-green-50 rounded-lg p-4">
-        <div class="text-2xl font-bold text-slate-900">0</div>
-        <div class="text-xs text-slate-500">Shortlisted</div>
-      </div>
-    </div>
-  </div>
+    <!-- Application overview -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-    <!-- LEFT -->
-    <div class="lg:col-span-2 space-y-5">
+        <div class="mb-4 flex items-center gap-2">
+            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <i class="ti ti-users text-lg"></i>
+            </div>
 
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-1">
-          <i class="ti ti-briefcase text-indigo-600"></i>
-          <h2 class="font-semibold text-slate-900">About the Role</h2>
-        </div>
-        <p class="text-xs text-slate-500 mb-3">What this role is about and what you'll be doing day to day.</p>
-        <p class="text-sm text-slate-700 whitespace-pre-line">{{ job.description_text }}</p>
-      </div>
+            <div>
+                <h2 class="font-semibold text-slate-900">
+                    Application Overview
+                </h2>
 
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-1">
-          <i class="ti ti-list-check text-indigo-600"></i>
-          <h2 class="font-semibold text-slate-900">Required Skills</h2>
-        </div>
-        <p class="text-xs text-slate-500 mb-3">Core skills required for this role.</p>
-        <div class="flex flex-wrap gap-2 pb-4 mb-4 border-b border-dashed border-slate-200">
-          {% for s in job.required_skills %}
-            <span class="text-xs px-2 py-1 rounded-full border border-slate-200 flex items-center gap-1">
-              <i class="ti ti-check text-green-600"></i> {{ s }}
-            </span>
-          {% empty %}
-            <span class="text-xs text-slate-400">No required skills yet.</span>
-          {% endfor %}
+                <p class="text-xs text-slate-500">
+                    Candidate activity for this role.
+                </p>
+            </div>
         </div>
 
-        <div class="flex items-center gap-2 mb-1">
-          <i class="ti ti-sparkles text-purple-600"></i>
-          <h2 class="font-semibold text-slate-900">Preferred Skills</h2>
-        </div>
-        <p class="text-xs text-slate-500 mb-3">Additional skills that can strengthen a candidate's match.</p>
-        <div class="flex flex-wrap gap-2">
-          {% for s in job.preferred_skills %}
-            <span class="text-xs px-2 py-1 rounded-full border border-slate-200 flex items-center gap-1">
-              <i class="ti ti-plus text-slate-400"></i> {{ s }}
-            </span>
-          {% empty %}
-            <span class="text-xs text-slate-400">None.</span>
-          {% endfor %}
-        </div>
-      </div>
 
-      <div class="bg-indigo-50/40 border border-indigo-100 rounded-xl shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-1">
-          <i class="ti ti-target text-indigo-600"></i>
-          <h2 class="font-semibold text-slate-900">How Candidates Are Scored</h2>
-        </div>
-        <p class="text-xs text-slate-500 mb-3">Candidate scores are calculated using skill match and resume similarity.</p>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
-        <div class="h-2 rounded-full bg-slate-200 overflow-hidden flex mb-1">
-          <div class="h-full bg-indigo-500" style="width: {{ job.skill_weight }}%"></div>
-          <div class="h-full bg-purple-400" style="width: {{ job.similarity_weight }}%"></div>
-        </div>
-        <div class="flex justify-between text-xs text-slate-500 mb-4">
-          <span>● Skill Match {{ job.skill_weight }}%</span>
-          <span>Resume Similarity {{ job.similarity_weight }}% ●</span>
+            <div class="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4">
+                <div class="text-2xl font-bold text-slate-900">0</div>
+                <div class="mt-1 text-xs text-slate-500">
+                    Applications
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+                <div class="text-2xl font-bold text-slate-900">0</div>
+                <div class="mt-1 text-xs text-slate-500">
+                    Shortlisted
+                </div>
+            </div>
+
         </div>
 
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-white border border-slate-200 rounded-lg p-3 text-center">
-            <div class="text-xl font-bold text-slate-900">{{ job.skill_weight }}%</div>
-            <div class="text-[10px] tracking-wide text-slate-500">SKILL MATCH</div>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-lg p-3 text-center">
-            <div class="text-xl font-bold text-slate-900">{{ job.similarity_weight }}%</div>
-            <div class="text-[10px] tracking-wide text-slate-500">RESUME SIMILARITY</div>
-          </div>
-          <div class="bg-indigo-100 border border-indigo-200 rounded-lg p-3 text-center">
-            <div class="text-xl font-bold text-indigo-700">100%</div>
-            <div class="text-[10px] tracking-wide text-indigo-600">TOTAL</div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-slate-200 rounded-lg p-3 text-center text-xs text-slate-500 mt-3">
-          Skill Match × {{ job.skill_weight }}% + Resume Similarity × {{ job.similarity_weight }}%
-        </div>
-      </div>
     </div>
 
-    <!-- RIGHT -->
-    <div class="space-y-5">
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-        <h2 class="font-semibold text-slate-900 mb-3">Job Overview</h2>
-        <div class="space-y-3 text-sm">
-          <div>
-            <div class="text-[10px] tracking-wide text-slate-400">DEPARTMENT</div>
-            <div class="font-medium">{{ job.department|default:"-" }}</div>
-          </div>
-          <div>
-            <div class="text-[10px] tracking-wide text-slate-400">LOCATION</div>
-            <div class="font-medium">{{ job.location|default:"-" }}</div>
-          </div>
-          <div>
-            <div class="text-[10px] tracking-wide text-slate-400">EMPLOYMENT TYPE</div>
-            <div class="font-medium">{{ job.get_job_type_display }}</div>
-          </div>
-          <div>
-            <div class="text-[10px] tracking-wide text-slate-400">EXPERIENCE</div>
-            <div class="font-medium">{{ job.experience|default:"-" }}</div>
-          </div>
-          <div>
-            <div class="text-[10px] tracking-wide text-slate-400">EDUCATION</div>
-            <div class="font-medium">{{ job.education|default:"-" }}</div>
-          </div>
-          <div>
-            <div class="text-[10px] tracking-wide text-slate-400">CREATED</div>
-            <div class="font-medium">{{ job.created_at|date:"d M Y" }}</div>
-          </div>
-        </div>
-      </div>
 
-      <div class="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-5">
-        <h2 class="font-semibold mb-3">Ready to review candidates?</h2>
-        <ul class="text-sm space-y-2">
-          <li class="flex items-center gap-2"><i class="ti ti-file-text"></i> 0 applications received</li>
-          <li class="flex items-center gap-2"><i class="ti ti-check"></i> 0 candidates shortlisted</li>
-          <li class="flex items-center gap-2"><i class="ti ti-sparkles"></i> Candidates are ready for review.</li>
-        </ul>
-      </div>
+    <!-- Main content -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+        <!-- LEFT -->
+        <div class="space-y-6 lg:col-span-2">
+
+
+            <!-- About role -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                <div class="flex items-center gap-2">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <i class="ti ti-briefcase text-lg"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-semibold text-slate-900">
+                            About the Role
+                        </h2>
+
+                        <p class="text-xs text-slate-500">
+                            What this role is about and what candidates should expect.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-5 whitespace-pre-line text-sm leading-7 text-slate-700">
+                    {{ job.description_text }}
+                </div>
+
+            </div>
+
+
+            <!-- Skills -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                <div class="flex items-center gap-2">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <i class="ti ti-list-check text-lg"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-semibold text-slate-900">
+                            Skills
+                        </h2>
+
+                        <p class="text-xs text-slate-500">
+                            Core and additional skills for this role.
+                        </p>
+                    </div>
+                </div>
+
+
+                <!-- Required -->
+                <div class="mt-6">
+
+                    <div class="mb-3">
+                        <h3 class="text-sm font-semibold text-slate-800">
+                            Required Skills
+                        </h3>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Core skills required for this role.
+                        </p>
+                    </div>
+
+
+                    <div class="flex flex-wrap gap-2">
+
+                        {% for skill in job.required_skills %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700">
+                                <i class="ti ti-check text-sm"></i>
+                                {{ skill }}
+                            </span>
+
+                        {% empty %}
+
+                            <span class="text-xs text-slate-400">
+                                No required skills added.
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Preferred -->
+                <div class="mt-7 border-t border-dashed border-slate-200 pt-6">
+
+                    <div class="mb-3">
+                        <h3 class="text-sm font-semibold text-slate-800">
+                            Preferred Skills
+                        </h3>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Additional skills that can strengthen a candidate's match.
+                        </p>
+                    </div>
+
+
+                    <div class="flex flex-wrap gap-2">
+
+                        {% for skill in job.preferred_skills %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-purple-100 bg-purple-50 px-3 py-1.5 text-xs font-medium text-purple-700">
+                                <i class="ti ti-sparkles text-sm"></i>
+                                {{ skill }}
+                            </span>
+
+                        {% empty %}
+
+                            <span class="text-xs text-slate-400">
+                                No preferred skills added.
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Scoring -->
+            <div class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 to-purple-50/70 p-6 shadow-sm">
+
+                <div class="flex items-center gap-2">
+
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+                        <i class="ti ti-target text-lg"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-semibold text-slate-900">
+                            How Candidates Are Scored
+                        </h2>
+
+                        <p class="text-xs text-slate-500">
+                            Candidate scores use the scoring weights defined for this job.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- Weight bar -->
+                <div class="mt-6">
+
+                    <div class="h-3 w-full overflow-hidden rounded-full bg-white/80 ring-1 ring-slate-200 flex">
+
+                        <div
+                            class="h-full bg-indigo-500 transition-all"
+                            style="width: {{ job.skill_weight }}%;">
+                        </div>
+
+                        <div
+                            class="h-full bg-purple-400 transition-all"
+                            style="width: {{ job.similarity_weight }}%;">
+                        </div>
+
+                    </div>
+
+
+                    <div class="mt-2 flex justify-between text-xs text-slate-500">
+
+                        <span>
+                            Skill Match {{ job.skill_weight }}%
+                        </span>
+
+                        <span>
+                            Resume Similarity {{ job.similarity_weight }}%
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Weight cards -->
+                <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+                    <div class="rounded-xl border border-slate-200 bg-white p-4 text-center">
+
+                        <div class="text-2xl font-bold text-slate-900">
+                            {{ job.skill_weight }}%
+                        </div>
+
+                        <div class="mt-1 text-[10px] font-semibold tracking-widest text-slate-400">
+                            SKILL MATCH
+                        </div>
+
+                    </div>
+
+
+                    <div class="rounded-xl border border-slate-200 bg-white p-4 text-center">
+
+                        <div class="text-2xl font-bold text-slate-900">
+                            {{ job.similarity_weight }}%
+                        </div>
+
+                        <div class="mt-1 text-[10px] font-semibold tracking-widest text-slate-400">
+                            RESUME SIMILARITY
+                        </div>
+
+                    </div>
+
+
+                    <div class="rounded-xl border border-indigo-200 bg-indigo-100 p-4 text-center">
+
+                        <div class="text-2xl font-bold text-indigo-700">
+                            100%
+                        </div>
+
+                        <div class="mt-1 text-[10px] font-semibold tracking-widest text-indigo-600">
+                            TOTAL
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Formula -->
+                <div class="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-xs font-medium text-slate-600">
+                    Skill Match × {{ job.skill_weight }}% + Resume Similarity × {{ job.similarity_weight }}%
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <div>
+
+            <div class="sticky top-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                <div class="flex items-center gap-2">
+
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <i class="ti ti-info-circle text-lg"></i>
+                    </div>
+
+                    <h2 class="font-semibold text-slate-900">
+                        Job Overview
+                    </h2>
+
+                </div>
+
+
+                <div class="mt-6 space-y-5">
+
+                    <div>
+                        <div class="text-[10px] font-semibold tracking-widest text-slate-400">
+                            DEPARTMENT
+                        </div>
+                        <div class="mt-1 font-medium text-slate-800">
+                            {{ job.department|default:"-" }}
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <div class="text-[10px] font-semibold tracking-widest text-slate-400">
+                            LOCATION
+                        </div>
+                        <div class="mt-1 font-medium text-slate-800">
+                            {{ job.location|default:"-" }}
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <div class="text-[10px] font-semibold tracking-widest text-slate-400">
+                            EMPLOYMENT TYPE
+                        </div>
+                        <div class="mt-1 font-medium text-slate-800">
+                            {{ job.get_job_type_display }}
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <div class="text-[10px] font-semibold tracking-widest text-slate-400">
+                            EXPERIENCE
+                        </div>
+                        <div class="mt-1 font-medium text-slate-800">
+                            {{ job.experience|default:"-" }}
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <div class="text-[10px] font-semibold tracking-widest text-slate-400">
+                            EDUCATION
+                        </div>
+                        <div class="mt-1 font-medium text-slate-800">
+                            {{ job.education|default:"-" }}
+                        </div>
+                    </div>
+
+
+                    <div class="border-t border-slate-100 pt-5">
+                        <div class="text-[10px] font-semibold tracking-widest text-slate-400">
+                            CREATED
+                        </div>
+                        <div class="mt-1 font-medium text-slate-800">
+                            {{ job.created_at|date:"d M Y" }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-  </div>
+
 </div>
+
 {% endblock %}

@@ -45,7 +45,7 @@
         </a>
         <a href="{% url 'job_list' %}"
            class="flex items-center gap-2 px-3 py-2 rounded-lg
-           {% if request.resolver_match.url_name == 'job_list' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+           {% if request.resolver_match.url_name in 'job_list job_create job_detail job_edit job_publish job_close' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-briefcase text-base"></i> Jobs
         </a>
         <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
