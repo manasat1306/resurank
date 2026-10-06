@@ -12,5 +12,6 @@ urlpatterns = [
     path('jobs/<int:pk>/edit/', job_views.job_edit, name='job_edit'),
     path('jobs/<int:pk>/publish/', job_views.job_publish, name='job_publish'),
     path('jobs/<int:pk>/close/', job_views.job_close, name='job_close'),
+        path('jobs/<int:pk>/applicants/', job_views.job_applicants, name='job_applicants'),
 ]
     

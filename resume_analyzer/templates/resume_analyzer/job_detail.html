@@ -82,15 +82,11 @@ Create, manage, and track your hiring opportunities.
         <!-- Actions -->
         <div class="flex flex-wrap items-center gap-2 shrink-0">
 
-            <!-- Applicants: application page will be connected later -->
-            <button
-                type="button"
-                disabled
-                title="Applicants page will be connected when the Application model is added"
-                class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm opacity-60 cursor-not-allowed">
+            <a href="{% url 'job_applicants' job.pk %}"
+               class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
                 <i class="ti ti-users"></i>
-                View Applicants (0)
-            </button>
+                View Applicants ({{ applicant_count }})
+            </a>
 
 
             <a href="{% url 'job_edit' job.pk %}"
@@ -170,14 +166,14 @@ Create, manage, and track your hiring opportunities.
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
             <div class="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4">
-                <div class="text-2xl font-bold text-slate-900">0</div>
+                <div class="text-2xl font-bold text-slate-900">{{ applicant_count }}</div>
                 <div class="mt-1 text-xs text-slate-500">
                     Applications
                 </div>
             </div>
 
             <div class="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
-                <div class="text-2xl font-bold text-slate-900">0</div>
+                <div class="text-2xl font-bold text-slate-900">{{ shortlisted_count }}</div>
                 <div class="mt-1 text-xs text-slate-500">
                     Shortlisted
                 </div>

@@ -106,8 +106,11 @@ def job_edit(request, pk):
 @login_required
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk, recruiter=request.user)
-    return render(request, 'resume_analyzer/job_detail.html', {'job': job})
-
+    return render(request, 'resume_analyzer/job_detail.html', {
+        'job': job,
+        'applicant_count': job.applications.count(),
+        'shortlisted_count': job.applications.filter(status='shortlisted').count(),
+    })
 
 @login_required
 def job_publish(request, pk):
@@ -127,3 +130,12 @@ def job_close(request, pk):
         job.status = 'closed'
         job.save()
     return redirect('job_detail', pk=job.pk)    
+
+@login_required
+def job_applicants(request, pk):
+    job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+    applications = job.applications.order_by('-final_score', '-applied_at')
+    return render(request, 'resume_analyzer/job_applicants.html', {
+        'job': job,
+        'applications': applications,
+    })
