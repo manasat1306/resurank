@@ -1,0 +1,270 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Applicants - {{ job.title }}{% endblock %}
+
+{% block page_title %}Jobs{% endblock %}
+
+{% block page_subtitle %}
+Review and rank the candidates who applied.
+{% endblock %}
+
+{% block content %}
+
+<div class="w-full max-w-7xl mx-auto space-y-6">
+
+    <a href="{% url 'job_detail' job.pk %}"
+       class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition">
+        <i class="ti ti-arrow-left"></i>
+        Back to {{ job.title }}
+    </a>
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Job applicants</p>
+            <div class="mt-1 flex items-center gap-3">
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">{{ job.title }}</h1>
+                {% if job.status == 'active' %}
+                    <span class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">● Active</span>
+                {% else %}
+                    <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">{{ job.get_status_display }}</span>
+                {% endif %}
+            </div>
+            <p class="mt-2 text-xs text-slate-500">
+                {{ total_count }} application{{ total_count|pluralize }} · {{ shortlisted_count }} shortlisted ·
+                <a href="{% url 'job_detail' job.pk %}" class="font-medium text-indigo-600 hover:underline">Job details ↗</a>
+            </p>
+        </div>
+        <a href="#" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50">
+            <i class="ti ti-arrows-diff"></i> Compare
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                Total applicants <i class="ti ti-users text-indigo-500"></i>
+            </div>
+            <div class="mt-3 text-3xl font-bold text-slate-900">{{ total_count }}</div>
+            <div class="mt-1 text-[11px] text-slate-400">In your pipeline</div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                Average score <i class="ti ti-trending-up text-sky-500"></i>
+            </div>
+            <div class="mt-3 text-3xl font-bold text-slate-900">{{ avg_score|floatformat:1 }}<span class="text-lg text-slate-400">%</span></div>
+            <div class="mt-1 text-[11px] text-slate-400">Across scored applicants</div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                Top score <i class="ti ti-trophy text-amber-500"></i>
+            </div>
+            <div class="mt-3 text-3xl font-bold text-slate-900">{{ top_score|floatformat:1 }}<span class="text-lg text-slate-400">%</span></div>
+            <div class="mt-1 text-[11px] text-slate-400">Highest match score</div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                Shortlisted <i class="ti ti-bookmark text-emerald-500"></i>
+            </div>
+            <div class="mt-3 text-3xl font-bold text-slate-900">{{ shortlisted_count }}</div>
+            <div class="mt-1 text-[11px] text-slate-400">Ready for the next step</div>
+        </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <i class="ti ti-adjustments-horizontal text-slate-400"></i> Filters
+            </div>
+            <button type="button" id="clear-filters" class="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-indigo-600">
+                <i class="ti ti-refresh"></i> Clear filters
+            </button>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-5">
+            <div>
+                <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                    Min score
+                    <span id="min-score-value" class="rounded bg-indigo-50 px-1.5 py-0.5 text-[11px] font-semibold text-indigo-600">0</span>
+                </div>
+                <input id="filter-min-score" type="range" min="0" max="100" value="0" class="mt-3 w-full accent-indigo-600">
+            </div>
+
+            <div>
+                <label for="filter-status" class="text-xs font-medium text-slate-500">Status</label>
+                <select id="filter-status" class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">
+                    <option value="">All</option>
+                    <option value="new">New</option>
+                    <option value="under_review">Under Review</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="interview">Interview</option>
+                    <option value="selected">Selected</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="filter-missing" class="text-xs font-medium text-slate-500">Missing skill</label>
+                <select id="filter-missing" class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">
+                    <option value="">Any</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="filter-severity" class="text-xs font-medium text-slate-500">Severity</label>
+                <select id="filter-severity" class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">
+                    <option value="">Any</option>
+                    <option value="critical">Critical</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="unclear">Unclear</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="filter-name" class="text-xs font-medium text-slate-500">Name</label>
+                <input id="filter-name" type="text" placeholder="Search candidates..." class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+            </div>
+        </div>
+
+        <p id="showing-text" class="mt-4 text-[11px] font-medium text-indigo-600">Showing {{ total_count }} of {{ total_count }} applicants</p>
+    </div>
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <div class="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <i class="ti ti-users text-slate-400"></i> Applicants
+                <span class="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">{{ total_count }}</span>
+            </div>
+            <span class="text-[11px] text-slate-400">Ranked by match score</span>
+        </div>
+
+        <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <tr>
+                    <th class="w-10 px-5 py-3"><input type="checkbox" class="rounded border-slate-300"></th>
+                    <th class="px-3 py-3">Rank</th>
+                    <th class="px-5 py-3">Candidate</th>
+                    <th class="px-5 py-3">Score</th>
+                    <th class="px-5 py-3">Skills</th>
+                    <th class="px-5 py-3">Missing skills</th>
+                    <th class="px-5 py-3">Status</th>
+                    <th class="px-5 py-3">Source</th>
+                    <th class="px-5 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for a in applications %}
+                <tr class="applicant-row hover:bg-slate-50/60"
+                    data-score="{{ a.final_score|floatformat:0 }}"
+                    data-status="{{ a.status }}"
+                    data-name="{{ a.candidate_name|lower }} {{ a.candidate_email|lower }}"
+                    data-missing="{% for item in a.severity_analysis %}{{ item.skill }}|{% endfor %}"
+                    data-severity="{% for item in a.severity_analysis %}{{ item.severity }}|{% endfor %}">
+                    <td class="px-5 py-4"><input type="checkbox" class="rounded border-slate-300"></td>
+
+                    <td class="px-3 py-4">
+                        {% if a.rank == 1 %}
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-xs font-bold text-amber-700">1</span>
+                        {% elif a.rank == 2 %}
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-xs font-bold text-slate-600">2</span>
+                        {% elif a.rank == 3 %}
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-orange-300 bg-orange-50 text-xs font-bold text-orange-700">3</span>
+                        {% else %}
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-500">{{ a.rank }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900">{{ a.candidate_name }}</div>
+                        <div class="text-xs text-slate-500">{{ a.candidate_email }}</div>
+                    </td>
+
+                    <td class="px-5 py-4">
+                        {% if a.final_score == 0 %}
+                            <span class="text-xs text-slate-400">Not scored yet</span>
+                        {% else %}
+                            {% if a.final_score >= 80 %}
+                                <span class="inline-block rounded bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">{{ a.final_score|floatformat:1 }}%</span>
+                                <div class="mt-1 h-1 w-16 rounded-full bg-slate-100"><div class="h-1 rounded-full bg-emerald-500" style="width: {{ a.final_score|floatformat:0 }}%"></div></div>
+                            {% elif a.final_score >= 60 %}
+                                <span class="inline-block rounded bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">{{ a.final_score|floatformat:1 }}%</span>
+                                <div class="mt-1 h-1 w-16 rounded-full bg-slate-100"><div class="h-1 rounded-full bg-amber-500" style="width: {{ a.final_score|floatformat:0 }}%"></div></div>
+                            {% else %}
+                                <span class="inline-block rounded bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{{ a.final_score|floatformat:1 }}%</span>
+                                <div class="mt-1 h-1 w-16 rounded-full bg-slate-100"><div class="h-1 rounded-full bg-rose-500" style="width: {{ a.final_score|floatformat:0 }}%"></div></div>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+
+                    <td class="px-5 py-4">
+                        <div class="text-xs font-semibold text-slate-700">{{ a.matched_count }}/{{ a.total_skills }}</div>
+                        <div class="mt-1 h-1 w-14 rounded-full bg-slate-100"><div class="h-1 rounded-full bg-indigo-500" style="width: {{ a.skill_percent }}%"></div></div>
+                    </td>
+
+                    <td class="px-5 py-4">
+                        {% if a.final_score == 0 %}
+                            <span class="text-xs text-slate-400">-</span>
+                        {% else %}
+                            <div class="flex flex-wrap gap-1">
+                                {% for item in a.severity_analysis %}
+                                    {% if item.severity == 'critical' %}
+                                        <span title="{{ item.note }}" class="inline-block rounded-md bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700">✕ {{ item.skill }} · Critical</span>
+                                    {% elif item.severity == 'moderate' %}
+                                        <span title="{{ item.note }}" class="inline-block rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">✕ {{ item.skill }} · Moderate</span>
+                                    {% else %}
+                                        <span title="{{ item.note }}" class="inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">✕ {{ item.skill }} · Unclear</span>
+                                    {% endif %}
+                                {% empty %}
+                                    <span class="text-xs font-medium text-emerald-600">✓ All required skills found</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-5 py-4">
+                        {% if a.status == 'selected' %}
+                            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">● {{ a.get_status_display }}</span>
+                        {% elif a.status == 'rejected' %}
+                            <span class="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">● {{ a.get_status_display }}</span>
+                        {% elif a.status == 'shortlisted' %}
+                            <span class="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700">● {{ a.get_status_display }}</span>
+                        {% elif a.status == 'under_review' or a.status == 'interview' %}
+                            <span class="rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">● {{ a.get_status_display }}</span>
+                        {% else %}
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">● {{ a.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-5 py-4 text-xs text-slate-600">{{ a.get_source_display }}</td>
+
+                    <td class="px-5 py-4">
+                        <a href="#" class="text-xs font-medium text-indigo-600 hover:underline">View →</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="px-5 py-12 text-center text-slate-500">
+                        No applications yet for this job.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="border-t border-slate-100 px-5 py-3 text-[11px] text-slate-400">
+            {{ total_count }} applicant{{ total_count|pluralize }}
+        </div>
+    </div>
+
+    <p class="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+        <i class="ti ti-shield-check"></i>
+        Scores support recruiters. Humans make every final decision. Names, gender and photos are never used in scoring.
+    </p>
+
+</div>
+
+<script src="{% static 'resume_analyzer/js/applicants.js' %}"></script>
+
+{% endblock %}

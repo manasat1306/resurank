@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Avg, Max
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Job
 from .forms import JobForm
@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 @login_required
 def job_list(request):
     # Only show jobs belonging to the logged-in recruiter
+    
     all_jobs = Job.objects.filter(recruiter=request.user)
 
     tab = request.GET.get('status', 'all')
@@ -134,8 +135,19 @@ def job_close(request, pk):
 @login_required
 def job_applicants(request, pk):
     job = get_object_or_404(Job, pk=pk, recruiter=request.user)
-    applications = job.applications.order_by('-final_score', '-applied_at')
+    applications = list(job.applications.order_by('-final_score', '-applied_at'))
+    for i, a in enumerate(applications, start=1):
+        a.rank = i
+        a.matched_count = len(a.matched_skills or [])
+        a.total_skills = a.matched_count + len(a.missing_skills or [])
+        a.skill_percent = round(a.matched_count * 100 / a.total_skills) if a.total_skills else 0
+    scored = job.applications.filter(final_score__gt=0)
+    stats = scored.aggregate(avg=Avg('final_score'), top=Max('final_score'))
     return render(request, 'resume_analyzer/job_applicants.html', {
         'job': job,
         'applications': applications,
+        'total_count': len(applications),
+        'shortlisted_count': job.applications.filter(status='shortlisted').count(),
+        'avg_score': stats['avg'] or 0,
+        'top_score': stats['top'] or 0,
     })

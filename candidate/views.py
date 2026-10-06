@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from resume_analyzer.models import Job, Application
+from resume_analyzer.scoring import score_application
 from .forms import ApplyForm
 from django.db.models import Q
 import re
@@ -69,6 +70,10 @@ def apply(request, job_id):
             application.job = job
             application.source = 'applied'
             application.save()
+            try:
+                score_application(application)
+            except Exception:
+                pass  # a scoring problem must never block the candidate's application
             return redirect('candidate:apply_success', token=application.tracking_token)
     else:
         form = ApplyForm(job=job)

@@ -2,6 +2,7 @@ import pdfplumber
 from django.shortcuts import render, get_object_or_404
 from .models import Resume, Job
 from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
+from resume_analyzer.scoring import score_application
 
 import re #regular expressions
 from django.contrib.auth.forms import UserCreationForm
