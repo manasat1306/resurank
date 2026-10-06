@@ -1,0 +1,24 @@
+{% extends 'candidate/base.html' %}
+{% block title %}Application submitted{% endblock %}
+
+{% block content %}
+  <div class="max-w-xl mx-auto px-6 py-12">
+    <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center">
+      <div class="text-5xl text-green-600">✓</div>
+      <h1 class="text-2xl font-bold mt-3">Application submitted!</h1>
+      <p class="text-lg text-slate-600 mt-2">{{ application.job.title }}</p>
+      <p class="text-slate-600 mt-4">
+        Next: a recruiter reviews your application. You will hear back by email if you are shortlisted.
+      </p>
+
+      <div class="mt-6 flex justify-center gap-3">
+        <a href="{% url 'candidate:track' application.tracking_token %}" class="bg-indigo-700 text-white text-sm font-semibold px-5 py-3 rounded-xl hover:bg-indigo-800">
+          Track my application
+        </a>
+        <a href="{% url 'candidate:job_list' %}" class="border border-slate-300 text-sm font-semibold px-5 py-3 rounded-xl hover:bg-slate-50">
+          Browse more jobs
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

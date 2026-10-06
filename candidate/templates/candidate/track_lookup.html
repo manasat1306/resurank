@@ -1,0 +1,25 @@
+{% extends 'candidate/base.html' %}
+{% block title %}Track application{% endblock %}
+
+{% block content %}
+  <div class="max-w-xl mx-auto px-6 py-12">
+    <div class="bg-white border border-slate-200 rounded-2xl p-8">
+      <h1 class="text-2xl font-bold">Track your application</h1>
+      <p class="text-slate-500 mt-2">
+        Paste the tracking link you received after applying, or just the code at the end of it.
+      </p>
+
+      <form method="post" class="mt-6 space-y-4">
+        {% csrf_token %}
+        <input type="text" name="code" value="{{ code }}" placeholder="Paste your tracking link or code"
+               class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        {% if error %}
+          <p class="text-sm text-red-600">{{ error }}</p>
+        {% endif %}
+        <button type="submit" class="w-full bg-indigo-700 text-white text-sm font-semibold px-6 py-3.5 rounded-xl hover:bg-indigo-800">
+          Track application
+        </button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

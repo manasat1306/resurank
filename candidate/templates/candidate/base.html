@@ -27,7 +27,7 @@
            class="px-4 py-2 rounded-full {% if request.resolver_match.url_name == 'job_list' %}bg-slate-100{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
           Jobs
         </a>
-        <a href="#" class="px-4 py-2 rounded-full text-slate-600 hover:bg-slate-50">Track Application</a>
+        <a href="{% url 'candidate:track_lookup' %}" class="px-4 py-2 rounded-full text-slate-600 hover:bg-slate-50">Track Application</a>
       </nav>
     </div>
   </header>

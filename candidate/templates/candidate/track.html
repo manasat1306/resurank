@@ -1,0 +1,49 @@
+{% extends 'candidate/base.html' %}
+{% block title %}Track application{% endblock %}
+
+{% block content %}
+  <div class="max-w-2xl mx-auto px-6 py-10">
+    <div class="bg-white border border-slate-200 rounded-2xl p-8">
+      <p class="text-xs font-bold tracking-wide text-indigo-600">YOUR APPLICATION</p>
+      <h1 class="text-2xl font-bold mt-1">{{ application.job.title }}</h1>
+      <p class="text-sm text-slate-500 mt-1">
+        {{ application.candidate_name }} · Applied {{ application.applied_at|date:"d M Y" }}
+      </p>
+
+      <ol class="mt-8">
+        {% for step in steps %}
+          <li class="flex gap-4">
+            <div class="flex flex-col items-center">
+              <span class="h-8 w-8 shrink-0 rounded-full flex items-center justify-center text-sm font-semibold
+                {% if step.state == 'done' %}bg-green-600 text-white
+                {% elif step.state == 'current' %}bg-indigo-600 text-white ring-4 ring-indigo-100
+                {% elif step.state == 'closed' %}bg-slate-600 text-white
+                {% else %}bg-slate-100 text-slate-400{% endif %}">
+                {% if step.state == 'done' %}<i class="ti ti-check"></i>{% else %}{{ forloop.counter }}{% endif %}
+              </span>
+              {% if not forloop.last %}
+                <span class="w-0.5 flex-1 min-h-8 {% if step.state == 'done' %}bg-green-600{% else %}bg-slate-200{% endif %}"></span>
+              {% endif %}
+            </div>
+            <div class="pb-8">
+              <p class="font-semibold pt-1 {% if step.state == 'upcoming' %}text-slate-400{% else %}text-slate-900{% endif %}">
+                {{ step.label }}
+              </p>
+              {% if step.state == 'current' %}
+                <p class="text-sm text-slate-500">You are here</p>
+              {% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+
+      <p class="mt-2 pt-6 border-t border-slate-200 text-sm text-slate-500">
+        "Your resume is scored against the job's requirements to help recruiters review applications. A recruiter makes every final decision."
+      </p>
+
+      <a href="{% url 'candidate:job_list' %}" class="inline-block mt-5 text-sm font-medium text-indigo-600 hover:text-indigo-700">
+        ← Browse more jobs
+      </a>
+    </div>
+  </div>
+{% endblock %}
