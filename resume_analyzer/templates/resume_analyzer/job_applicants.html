@@ -240,7 +240,7 @@ Review and rank the candidates who applied.
                     <td class="px-5 py-4 text-xs text-slate-600">{{ a.get_source_display }}</td>
 
                     <td class="px-5 py-4">
-                        <a href="#" class="text-xs font-medium text-indigo-600 hover:underline">View →</a>
+                        <a href="{% url 'candidate_analysis' job.pk a.pk %}" class="text-xs font-medium text-indigo-600 hover:underline">View →</a>
                     </td>
                 </tr>
                 {% empty %}

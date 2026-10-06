@@ -163,6 +163,7 @@ def check_action_verbs_and_metrics(sections):
 
 def bias_awareness_check(sections):
     # This confirms our scoring never used identity-related info
+    
     gendered_terms = ['he', 'she', 'his', 'her', 'him', 'mr.', 'mrs.', 'ms.']
     header_lines = sections.get('header', [])
 

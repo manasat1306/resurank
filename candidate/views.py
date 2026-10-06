@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from resume_analyzer.models import Job, Application
+from resume_analyzer.models import Job, Application, StatusHistory
 from resume_analyzer.scoring import score_application
 from .forms import ApplyForm
 from django.db.models import Q
@@ -70,6 +70,7 @@ def apply(request, job_id):
             application.job = job
             application.source = 'applied'
             application.save()
+            StatusHistory.objects.create(application=application, status='new')
             try:
                 score_application(application)
             except Exception:

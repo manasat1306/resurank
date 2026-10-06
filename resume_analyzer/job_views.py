@@ -1,9 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Avg, Max
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Job
+from .models import Job, Application, StatusHistory
+from django.views.decorators.http import require_POST
 from .forms import JobForm
 from django.core.paginator import Paginator
+import pdfplumber
+from .resume_quality import analyze_resume_quality
 
 
 @login_required
@@ -151,3 +154,48 @@ def job_applicants(request, pk):
         'avg_score': stats['avg'] or 0,
         'top_score': stats['top'] or 0,
     })
+
+@login_required
+def candidate_analysis(request, pk, app_id):
+    job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+    application = get_object_or_404(Application, pk=app_id, job=job)
+
+    quality = None
+    try:
+        text = ""
+        with application.resume_file.open('rb') as f:
+            with pdfplumber.open(f) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+        if text.strip():
+            quality = analyze_resume_quality(text)
+    except Exception:
+        quality = None
+
+    return render(request, 'resume_analyzer/candidate_analysis.html', {
+        'job': job,
+        'application': application,
+        'quality': quality,
+    })
+
+
+
+@login_required
+@require_POST
+def application_set_status(request, pk, app_id):
+    job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+    application = get_object_or_404(Application, pk=app_id, job=job)
+
+    new_status = request.POST.get('status')
+    if new_status in ('under_review', 'shortlisted', 'rejected') and new_status != application.status:
+        application.status = new_status
+        application.save()
+        StatusHistory.objects.create(
+            application=application,
+            status=new_status,
+            changed_by=request.user.username,
+        )
+
+    return redirect('candidate_analysis', pk=job.pk, app_id=application.pk)    
