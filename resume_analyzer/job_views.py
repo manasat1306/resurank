@@ -7,6 +7,7 @@ from .forms import JobForm
 from django.core.paginator import Paginator
 import pdfplumber
 from .resume_quality import analyze_resume_quality
+from .resume_parts import extract_resume_parts
 
 
 @login_required
@@ -161,23 +162,31 @@ def candidate_analysis(request, pk, app_id):
     application = get_object_or_404(Application, pk=app_id, job=job)
 
     quality = None
+    parts = None
     try:
         text = ""
         with application.resume_file.open('rb') as f:
             with pdfplumber.open(f) as pdf:
                 for page in pdf.pages:
-                    page_text = page.extract_text()
+                    page_text = page.extract_text(x_tolerance=1.5)
                     if page_text:
                         text += page_text + "\n"
         if text.strip():
             quality = analyze_resume_quality(text)
+            parts = extract_resume_parts(
+                text,
+                required=job.required_skills,
+                preferred=job.preferred_skills,
+            )
     except Exception:
         quality = None
+        parts = None
 
     return render(request, 'resume_analyzer/candidate_analysis.html', {
         'job': job,
         'application': application,
         'quality': quality,
+        'parts': parts,
     })
 
 

@@ -285,7 +285,125 @@
     <span>Scores are based on resume content only. Names, gender, photos and other personal details are not used.</span>
   </div>
 
-  <!-- Right-side cards will go here -->
+    {% if parts %}
+
+  <!-- Education -->
+  {% if parts.education %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900"><i class="ti ti-school text-indigo-500"></i> Education</h3>
+    <div class="mt-4 space-y-4">
+      {% for e in parts.education %}
+        <div>
+          <p class="text-sm font-semibold text-slate-800">{{ e.degree }}</p>
+          {% if e.institution %}<p class="text-xs text-slate-500">{{ e.institution }}</p>{% endif %}
+          <p class="mt-1 text-[11px] text-slate-400">
+            {{ e.dates }}{% if e.dates and e.grade %} · {% endif %}{{ e.grade }}
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Experience -->
+  {% if parts.experience %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900"><i class="ti ti-briefcase text-indigo-500"></i> Experience</h3>
+    <div class="mt-4 space-y-4">
+      {% for x in parts.experience %}
+        <div>
+          <p class="text-sm font-semibold text-slate-800">{{ x.title }}</p>
+          {% if x.company %}<p class="text-xs text-slate-500">{{ x.company }}</p>{% endif %}
+          {% if x.dates %}<p class="text-[11px] text-slate-400">{{ x.dates }}</p>{% endif %}
+          {% if x.bullets %}
+            <ul class="mt-2 space-y-1">
+              {% for b in x.bullets %}<li class="text-xs text-slate-500">• {{ b }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Projects -->
+  {% if parts.projects %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900"><i class="ti ti-code text-indigo-500"></i> Projects</h3>
+    <div class="mt-4 space-y-5">
+      {% for p in parts.projects %}
+        <div>
+          <p class="text-sm font-semibold text-slate-800">{{ p.name }}</p>
+          {% if p.links %}
+            <div class="mt-1 flex flex-wrap gap-3">
+              {% for l in p.links %}
+                <a href="{{ l.url }}" target="_blank" rel="noopener" class="text-[11px] font-medium text-indigo-600 hover:underline">{{ l.label }} ↗</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if p.tech %}
+            <div class="mt-2 flex flex-wrap gap-1">
+              {% for t in p.tech %}
+                <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">{{ t }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if p.bullets %}
+            <ul class="mt-2 space-y-1">
+              {% for b in p.bullets %}<li class="text-xs text-slate-500">• {{ b }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Certifications -->
+  {% if parts.certifications %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900"><i class="ti ti-certificate text-indigo-500"></i> Certifications</h3>
+    <div class="mt-4 space-y-4">
+      {% for c in parts.certifications %}
+        <div>
+          <p class="text-sm font-semibold text-slate-800">{{ c.name }}</p>
+          {% if c.date %}<p class="text-[11px] text-slate-400">{{ c.date }}</p>{% endif %}
+          {% for d in c.details %}<p class="mt-1 text-xs text-slate-500">{{ d }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Technologies -->
+  {% if parts.technologies %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900"><i class="ti ti-stack-2 text-indigo-500"></i> Technologies</h3>
+    <div class="mt-4 space-y-3">
+      {% for g in parts.technologies %}
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ g.category }}</p>
+          <div class="mt-1 flex flex-wrap gap-1">
+            {% for i in g.items %}
+              {% if i.status == 'required' %}
+                <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">✓ {{ i.name }}</span>
+              {% elif i.status == 'preferred' %}
+                <span class="rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700">{{ i.name }}</span>
+              {% else %}
+                <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{{ i.name }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <p class="mt-4 text-[10px] text-slate-400">
+      <span class="text-emerald-600">Green</span> = required by this job · <span class="text-indigo-600">Blue</span> = preferred
+    </p>
+  </div>
+  {% endif %}
+
+  {% endif %}
 </div>
 
 </div>
