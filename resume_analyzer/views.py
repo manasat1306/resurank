@@ -1,6 +1,7 @@
 import pdfplumber
 from django.shortcuts import render, get_object_or_404
 from .models import Resume, Job
+from .signup_forms import RecruiterSignupForm
 from .matcher import calculate_match_percentage, find_matched_and_missing_skills, analyze_skill_gap_severity
 from resume_analyzer.scoring import score_application
 
@@ -10,16 +11,15 @@ from django.contrib.auth import login
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RecruiterSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('job_list')
     else:
-        form = UserCreationForm()
+        form = RecruiterSignupForm()
     return render(request, 'resume_analyzer/signup.html', {'form': form})
 
 def detect_sections(text):

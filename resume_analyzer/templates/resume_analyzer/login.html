@@ -1,33 +1,127 @@
-<!DOCTYPE html>
 {% load static %}
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>ResuRank - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static 'resume_analyzer/css/style.css' %}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in | ResuRank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="{% static 'resume_analyzer/img/logo.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
 </head>
-<body>
-    <div class="sheet" style="margin-top: 80px;">
-        <section class="panel intake">
-            <p class="eyebrow">Recruiter Access</p>
-            <h2>Log in to ResuRank</h2>
-            <form method="POST" class="intake-form" style="flex-direction: column; align-items: stretch;">
-                {% csrf_token %}
+<body class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-indigo-50/50 text-slate-900">
+  <div class="pointer-events-none fixed inset-0 overflow-hidden">
+    <div class="absolute right-0 top-20 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl"></div>
+  </div>
 
-                <label>Username</label>
-                <input type="text" name="username" required class="file-input" style="margin-bottom: 14px;">
+  <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6">
 
-                <label>Password</label>
-                <input type="password" name="password" required class="file-input" style="margin-bottom: 14px;">
+    <!-- Header -->
+    <header class="flex items-center justify-between border-b border-slate-200/70 py-5">
+      <div class="flex items-center gap-3">
+        <img src="{% static 'resume_analyzer/img/logo.svg' %}" class="h-10 w-10" alt="ResuRank logo">
+        <span class="text-2xl font-extrabold tracking-tight">Resu<span class="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">Rank</span></span>
+      </div>
+      <span class="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 sm:block">Recruiter access</span>
+    </header>
 
-                {% if form.errors %}
-                    <div class="redline">Invalid username or password.</div>
-                {% endif %}
+    <!-- Main -->
+    <main class="grid flex-1 grid-cols-1 items-center gap-12 py-12 lg:grid-cols-2">
 
-                <button type="submit" class="stamp-btn" style="margin-top: 10px;">Log In</button>
-            </form>
-            <p style="margin-top: 16px;">Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
-        </section>
-    </div>
+      <!-- Left -->
+      <div>
+        <p class="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-600">
+          <span class="h-px w-8 bg-blue-600"></span> Explainable recruitment intelligence
+        </p>
+        <h1 class="mt-6 text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl">
+          Welcome back to
+          <span class="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">smarter hiring.</span>
+        </h1>
+        <p class="mt-6 max-w-md text-base leading-relaxed text-slate-500">
+          Screen resumes, rank candidates, and understand every score with ResuRank.
+        </p>
+
+        <div class="mt-10 max-w-sm border-t border-slate-200 pt-8">
+          <ul class="space-y-4 text-sm font-medium text-slate-700">
+            <li class="flex items-center gap-4">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600"><i class="ti ti-file-search text-lg"></i></span>
+              Screen resumes faster
+            </li>
+            <li class="flex items-center gap-4">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600"><i class="ti ti-chart-bar text-lg"></i></span>
+              Rank candidates clearly
+            </li>
+            <li class="flex items-center gap-4">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600"><i class="ti ti-list-check text-lg"></i></span>
+              Understand every score
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right: form card -->
+      <div class="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-indigo-100/60">
+        <span class="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-blue-600">
+          <span class="h-1.5 w-1.5 rounded-full bg-blue-600"></span> Recruiter portal
+        </span>
+        <h2 class="mt-5 text-3xl font-extrabold tracking-tight">Welcome back</h2>
+        <p class="mt-2 text-sm text-slate-500">Sign in to continue to your ResuRank recruiter account.</p>
+
+        <form method="POST" class="mt-7 space-y-5">
+          {% csrf_token %}
+          {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+
+          {% if form.errors %}
+            <div class="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700">
+              <i class="ti ti-alert-circle mt-0.5 text-sm"></i>
+              <span>Invalid username or password.</span>
+            </div>
+          {% endif %}
+
+          <div>
+            <label for="username" class="text-sm font-semibold text-slate-800">Username</label>
+            <input type="text" name="username" id="username" required autofocus autocomplete="username"
+                   placeholder="Enter your username"
+                   class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100">
+          </div>
+
+          <div>
+            <label for="password" class="text-sm font-semibold text-slate-800">Password</label>
+            <div class="relative mt-2">
+              <input type="password" name="password" id="password" required autocomplete="current-password"
+                     placeholder="Enter your password"
+                     class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-11 text-sm text-slate-700 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100">
+              <button type="button" data-toggle-password="password" aria-label="Show or hide password"
+                      class="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 hover:text-slate-600">
+                <i class="ti ti-eye text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:opacity-95">
+            Sign In <i class="ti ti-arrow-right"></i>
+          </button>
+        </form>
+
+        <div class="mt-7 border-t border-slate-100 pt-6 text-center text-sm text-slate-500">
+          Don't have an account?
+          <a href="{% url 'signup' %}" class="font-semibold text-blue-600 hover:underline">Create one</a>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200/70 py-6 text-xs text-slate-500">
+      © 2026 ResuRank · Scores support recruiters. Humans make every final decision.
+    </footer>
+
+  </div>
+
+  <script src="{% static 'resume_analyzer/js/auth.js' %}"></script>
 </body>
 </html>
