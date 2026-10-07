@@ -82,6 +82,9 @@ def score_application(application):
     severity = analyze_skill_gap_severity(missing, job.description_text)
     for item in severity:
         item['evidence'] = find_evidence(item['skill'], job.description_text)
+        if item['severity'] == 'unclear':
+            item['severity'] = 'critical'
+            item['note'] = 'Listed as a required skill for this job.'
 
     application.skill_score = skill_score
     application.similarity_score = similarity
