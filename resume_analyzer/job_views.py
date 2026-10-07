@@ -243,3 +243,85 @@ def analyze_resume(request):
         form = AnalyzeResumeForm(recruiter=request.user)
 
     return render(request, 'resume_analyzer/analyze_resume.html', {'form': form})
+
+@login_required
+def compare_candidates(request, pk):
+    job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+
+    ids = []
+    for part in request.GET.get('ids', '').split(','):
+        part = part.strip()
+        if part.isdigit() and int(part) not in ids:
+            ids.append(int(part))
+    ids = ids[:4]
+
+    found = {a.pk: a for a in job.applications.filter(pk__in=ids)}
+    candidates = [found[i] for i in ids if i in found]
+
+    if len(candidates) < 2:
+        return redirect('job_applicants', pk=job.pk)
+
+    ranked_ids = list(
+        job.applications.order_by('-final_score', '-applied_at').values_list('pk', flat=True)
+    )
+    for a in candidates:
+        a.rank = ranked_ids.index(a.pk) + 1
+        a.matched_count = len(a.matched_skills or [])
+        a.total_skills = a.matched_count + len(a.missing_skills or [])
+        a.skill_percent = round(a.matched_count * 100 / a.total_skills) if a.total_skills else 0
+
+    skill_order = []
+    for a in candidates:
+        for s in list(a.matched_skills or []) + list(a.missing_skills or []):
+            if s not in skill_order:
+                skill_order.append(s)
+
+    skill_rows = []
+    for skill in skill_order:
+        cells = []
+        for a in candidates:
+            if skill in (a.matched_skills or []):
+                cells.append({'found': True, 'severity': '', 'note': ''})
+            else:
+                info = next(
+                    (i for i in (a.severity_analysis or []) if i.get('skill') == skill),
+                    None,
+                )
+                cells.append({
+                    'found': False,
+                    'severity': info.get('severity', 'unclear') if info else 'unclear',
+                    'note': info.get('note', '') if info else '',
+                })
+        skill_rows.append({'skill': skill, 'cells': cells})
+
+    return render(request, 'resume_analyzer/compare.html', {
+        'job': job,
+        'candidates': candidates,
+        'total_count': len(ranked_ids),
+        'best_score': max(a.final_score for a in candidates),
+        'skill_rows': skill_rows,
+    })
+
+@login_required
+def compare_picker(request):
+    # Only this recruiter's own jobs
+    jobs = list(Job.objects.filter(recruiter=request.user).order_by('-created_at'))
+    for j in jobs:
+        j.app_count = j.applications.count()
+
+    selected_job = None
+    applicants = []
+    job_id = request.GET.get('job', '')
+    if job_id.isdigit():
+        selected_job = next((j for j in jobs if j.pk == int(job_id)), None)
+
+    if selected_job:
+        applicants = list(selected_job.applications.order_by('-final_score', '-applied_at'))
+        for i, a in enumerate(applicants, start=1):
+            a.rank = i
+
+    return render(request, 'resume_analyzer/compare_picker.html', {
+        'jobs': jobs,
+        'selected_job': selected_job,
+        'applicants': applicants,
+    })    
