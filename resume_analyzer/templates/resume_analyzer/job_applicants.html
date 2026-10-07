@@ -34,9 +34,14 @@ Review and rank the candidates who applied.
                 <a href="{% url 'job_detail' job.pk %}" class="font-medium text-indigo-600 hover:underline">Job details ↗</a>
             </p>
         </div>
-        <a href="#" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50">
-            <i class="ti ti-arrows-diff"></i> Compare
-        </a>
+        <div class="flex flex-col items-end gap-1">
+            <button type="button" id="compare-btn"
+                    data-url="{% url 'compare_candidates' job.pk %}"
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50">
+                <i class="ti ti-arrows-diff"></i> Compare
+            </button>
+            <span id="compare-hint" class="text-[11px] text-slate-400">Tick 2 to 4 candidates</span>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -143,7 +148,7 @@ Review and rank the candidates who applied.
         <table class="w-full text-left text-sm">
             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
-                    <th class="w-10 px-5 py-3"><input type="checkbox" class="rounded border-slate-300"></th>
+                    <th class="w-10 px-5 py-3"><input type="checkbox" id="compare-select-all" class="rounded border-slate-300" title="Select top 4"></th>
                     <th class="px-3 py-3">Rank</th>
                     <th class="px-5 py-3">Candidate</th>
                     <th class="px-5 py-3">Score</th>
@@ -162,7 +167,7 @@ Review and rank the candidates who applied.
                     data-name="{{ a.candidate_name|lower }} {{ a.candidate_email|lower }}"
                     data-missing="{% for item in a.severity_analysis %}{{ item.skill }}|{% endfor %}"
                     data-severity="{% for item in a.severity_analysis %}{{ item.severity }}|{% endfor %}">
-                    <td class="px-5 py-4"><input type="checkbox" class="rounded border-slate-300"></td>
+                    <td class="px-5 py-4"><input type="checkbox" class="compare-check rounded border-slate-300" value="{{ a.pk }}"></td>
 
                     <td class="px-3 py-4">
                         {% if a.rank == 1 %}
@@ -266,5 +271,6 @@ Review and rank the candidates who applied.
 </div>
 
 <script src="{% static 'resume_analyzer/js/applicants.js' %}"></script>
+<script src="{% static 'resume_analyzer/js/applicant_compare.js' %}"></script>
 
 {% endblock %}
