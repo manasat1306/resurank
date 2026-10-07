@@ -130,7 +130,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'upload_resume'
+LOGIN_REDIRECT_URL = 'job_list'
 
 # Uploaded files (candidate resumes)
 MEDIA_URL = '/media/'

@@ -1,10 +1,9 @@
 from django.urls import path
-from . import views,job_views
+from django.views.generic import RedirectView
+from . import views, job_views
 
 urlpatterns = [
-    path('', views.upload_resume, name='upload_resume'),
-    path('match/', views.match_resume_to_job, name='match_resume_to_job'),
-    path('ranking/', views.job_ranking, name='job_ranking'),
+    path('', RedirectView.as_view(pattern_name='job_list', permanent=False), name='home'),
     path('signup/', views.signup, name='signup'),
     path('jobs/', job_views.job_list, name='job_list'),
     path('jobs/new/', job_views.job_create, name='job_create'),
@@ -17,4 +16,3 @@ urlpatterns = [
     path('jobs/<int:pk>/applicants/<int:app_id>/status/', job_views.application_set_status, name='application_set_status'),
     path('analyze/', job_views.analyze_resume, name='analyze_resume'),
 ]
-    

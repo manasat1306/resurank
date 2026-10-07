@@ -45,13 +45,15 @@
         </a>
         <a href="{% url 'job_list' %}"
            class="flex items-center gap-2 px-3 py-2 rounded-lg
-           {% if request.resolver_match.url_name in 'job_list job_create job_detail job_edit job_publish job_close' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+           {% if request.resolver_match.url_name in 'job_list job_create job_detail job_edit job_publish job_close job_applicants candidate_analysis application_set_status' %} bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-briefcase text-base"></i> Jobs
         </a>
         <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
           <i class="ti ti-git-compare text-base"></i> Compare
         </a>
-        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+        <a href="{% url 'analyze_resume' %}"
+           class="flex items-center gap-2 px-3 py-2 rounded-lg
+           {% if request.resolver_match.url_name == 'analyze_resume' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-file-text text-base"></i> Analyze Resume
         </a>
         <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">

@@ -17,7 +17,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('upload_resume')
+            return redirect('job_list')
     else:
         form = UserCreationForm()
     return render(request, 'resume_analyzer/signup.html', {'form': form})
