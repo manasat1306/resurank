@@ -8,6 +8,8 @@ from django.core.paginator import Paginator
 import pdfplumber
 from .resume_quality import analyze_resume_quality
 from .resume_parts import extract_resume_parts
+from .analyze_forms import AnalyzeResumeForm
+from .scoring import score_application
 
 
 @login_required
@@ -208,3 +210,36 @@ def application_set_status(request, pk, app_id):
         )
 
     return redirect('candidate_analysis', pk=job.pk, app_id=application.pk)    
+
+
+
+@login_required
+def analyze_resume(request):
+    if request.method == 'POST':
+        form = AnalyzeResumeForm(request.POST, request.FILES, recruiter=request.user)
+        if form.is_valid():
+            job = form.cleaned_data['job']  # already limited to this recruiter's jobs
+            application = Application.objects.create(
+                job=job,
+                candidate_name=form.cleaned_data['candidate_name'],
+                candidate_email=form.cleaned_data['candidate_email'],
+                resume_file=form.cleaned_data['resume_file'],
+                source='recruiter_upload',
+            )
+            result = score_application(application)
+            if not result['text_found']:
+                # scanned / unreadable PDF: remove it and ask for another file
+                application.resume_file.delete(save=False)
+                application.delete()
+                form.add_error('resume_file', 'No readable text found. This can happen with scanned or image-based PDFs. Please try a text-based PDF.')
+            else:
+                StatusHistory.objects.create(
+                    application=application,
+                    status='new',
+                    changed_by=request.user.username,
+                )
+                return redirect('candidate_analysis', pk=job.pk, app_id=application.pk)
+    else:
+        form = AnalyzeResumeForm(recruiter=request.user)
+
+    return render(request, 'resume_analyzer/analyze_resume.html', {'form': form})

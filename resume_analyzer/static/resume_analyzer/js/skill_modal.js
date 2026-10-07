@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var title = document.getElementById('skill-modal-title');
   var note = document.getElementById('skill-modal-note');
+  var evidenceBox = document.getElementById('skill-modal-evidence-box');
+  var evidenceText = document.getElementById('skill-modal-evidence');
   var closeBtn = document.getElementById('skill-modal-close');
 
   function openModal(chip) {
@@ -20,6 +22,13 @@ document.addEventListener('DOMContentLoaded', function () {
         severity + ' gap). It was not clearly found in the resume text.';
     }
 
+    var evidence = chip.dataset.evidence;
+    if (evidence && evidence.trim() !== '') {
+      evidenceText.textContent = '"' + evidence + '"';
+      evidenceBox.classList.remove('hidden');
+    } else {
+      evidenceBox.classList.add('hidden');
+    }
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
