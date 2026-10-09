@@ -1,0 +1,109 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Help{% endblock %}
+{% block page_title %}Help{% endblock %}
+{% block page_subtitle %}How to use ResuRank, step by step{% endblock %}
+
+{% block content %}
+
+<!-- INTRO -->
+<div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-5">
+  <div class="flex items-center gap-3">
+    <div class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+      <i class="ti ti-help-circle text-xl"></i>
+    </div>
+    <div>
+      <div class="text-sm font-semibold">Welcome to ResuRank</div>
+      <div class="text-xs text-slate-500">Every score has a reason. You make every final decision.</div>
+    </div>
+  </div>
+</div>
+
+<div class="space-y-5">
+
+  <!-- STEP 1 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">1</div>
+      <div>
+        <div class="text-sm font-semibold">Create a job</div>
+        <p class="text-sm text-slate-600 mt-1">Go to <b>Jobs</b> and click <b>New Job</b>. Add the title, department and location. Add the required skills and the preferred skills. Use the weight slider to choose how much the score depends on skills and how much on resume similarity.</p>
+        <p class="text-xs text-slate-500 mt-2">Tip: You can save as a draft and come back later.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">2</div>
+      <div>
+        <div class="text-sm font-semibold">Publish the job</div>
+        <p class="text-sm text-slate-600 mt-1">A job needs at least one required skill to be published. Click <b>Publish</b>. Only active jobs accept applications. You can close a job at any time.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">3</div>
+      <div>
+        <div class="text-sm font-semibold">Share the apply link</div>
+        <p class="text-sm text-slate-600 mt-1">Open your job and copy the apply link. Send it to candidates. They do not need to log in. After applying, each candidate gets a tracking link to see their status.</p>
+        <p class="text-xs text-slate-500 mt-2">You can also upload a resume yourself from <b>Analyze Resume</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">4</div>
+      <div>
+        <div class="text-sm font-semibold">View applicants</div>
+        <p class="text-sm text-slate-600 mt-1">Open a job and click <b>Applicants</b>. You will see a ranked table with the score, matched skills and status of each person. Use the filters to find people quickly.</p>
+      </div>
+    </div>
+  </div>
+
+    <!-- STEP 5 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">5</div>
+      <div>
+        <div class="text-sm font-semibold">Read the analysis</div>
+        <p class="text-sm text-slate-600 mt-1">Click a candidate to open the analysis. You will see the score ring, the score formula, matched and missing skills (click a skill for the reason), resume quality, and resume parts.</p>
+        <p class="text-xs text-slate-500 mt-2">Names, gender and photos are never used in scoring.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">6</div>
+      <div>
+        <div class="text-sm font-semibold">Decide and compare</div>
+        <p class="text-sm text-slate-600 mt-1">Use <b>Shortlist</b>, <b>Move to Review</b> or <b>Reject</b> on the analysis page. ResuRank never rejects anyone by itself. To compare, open <b>Compare</b> and pick 2 to 4 candidates to see them side by side.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="h-9 w-9 shrink-0 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">7</div>
+      <div>
+        <div class="text-sm font-semibold">Check analytics</div>
+        <p class="text-sm text-slate-600 mt-1">Open <b>Analytics</b> to see applications per week, status breakdown, score distribution, the most missing skills, and how each job is performing.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="text-center text-xs text-slate-400 py-6">Human decisions. Better informed.</div>
+
+{% endblock %}

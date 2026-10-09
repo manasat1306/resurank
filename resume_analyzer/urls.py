@@ -19,4 +19,5 @@ urlpatterns = [
     path('analyze/', job_views.analyze_resume, name='analyze_resume'),
     path('analytics/', job_views.analytics, name='analytics'),
     path('settings/', job_views.account_settings, name='account_settings'),
+    path('help/', job_views.help_page, name='help'),
 ]

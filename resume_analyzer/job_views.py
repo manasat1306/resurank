@@ -459,3 +459,7 @@ def account_settings(request):
         'profile_form': profile_form,
         'password_form': password_form,
     })
+
+@login_required
+def help_page(request):
+    return render(request, 'resume_analyzer/help.html')    
