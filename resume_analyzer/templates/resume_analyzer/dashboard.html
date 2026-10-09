@@ -1,0 +1,230 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Here is what is happening with your hiring{% endblock %}
+
+{% block content %}
+
+<!-- WELCOME -->
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 shadow-sm mb-5">
+  <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"></div>
+  <div class="absolute right-24 -bottom-12 h-32 w-32 rounded-full bg-white/10"></div>
+  <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <div class="text-xl font-semibold text-white">Welcome back, {{ first_name }}</div>
+      <p class="text-sm text-indigo-100 mt-1">Every score has a reason. You make every final decision.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="{% url 'analyze_resume' %}"
+         class="inline-flex items-center gap-2 rounded-lg bg-white/15 border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/25 transition">
+        <i class="ti ti-file-search text-base"></i> Analyze Resume
+      </a>
+      <a href="{% url 'job_create' %}"
+         class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition">
+        <i class="ti ti-plus text-base"></i> Create Job
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+      <i class="ti ti-briefcase text-xl"></i>
+    </div>
+    <div class="text-2xl font-semibold">{{ active_jobs }}</div>
+    <div class="text-xs text-slate-500 mt-1">Active jobs</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+      <i class="ti ti-users text-xl"></i>
+    </div>
+    <div class="text-2xl font-semibold">{{ total_apps }}</div>
+    <div class="text-xs text-slate-500 mt-1">Total applications</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-10 w-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center mb-3">
+      <i class="ti ti-user-check text-xl"></i>
+    </div>
+    <div class="text-2xl font-semibold">{{ shortlisted_count }}</div>
+    <div class="text-xs text-slate-500 mt-1">Shortlisted</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+          <i class="ti ti-target text-xl"></i>
+        </div>
+        <div class="text-2xl font-semibold">{{ avg_score|floatformat:1 }}%</div>
+        <div class="text-xs text-slate-500 mt-1">Average match score</div>
+      </div>
+      <div class="h-14 w-14 rounded-full flex items-center justify-center"
+           style="background: conic-gradient(#f59e0b {{ avg_score|floatformat:0 }}%, #e2e8f0 0);">
+        <div class="h-10 w-10 rounded-full bg-white"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- RECENT JOBS -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm mb-5 overflow-hidden">
+  <div class="flex items-center justify-between p-5">
+    <div>
+      <div class="text-sm font-semibold">Recent jobs</div>
+      <div class="text-xs text-slate-500">Your latest roles</div>
+    </div>
+    <a href="{% url 'job_list' %}"
+       class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition">
+      View all jobs <i class="ti ti-arrow-up-right text-sm"></i>
+    </a>
+  </div>
+
+  {% if recent_jobs %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-xs text-slate-500">
+        <tr>
+          <th class="text-left font-medium px-5 py-3">Job</th>
+          <th class="text-left font-medium px-5 py-3">Applications</th>
+          <th class="text-left font-medium px-5 py-3">Shortlisted</th>
+          <th class="text-left font-medium px-5 py-3">Status</th>
+          <th class="text-left font-medium px-5 py-3">Created</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for job in recent_jobs %}
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3">
+            <a href="{% url 'job_detail' job.pk %}" class="font-medium text-indigo-600 hover:underline">{{ job.title }}</a>
+            {% if job.department %}<div class="text-xs text-slate-400">{{ job.department }}</div>{% endif %}
+          </td>
+          <td class="px-5 py-3">{{ job.app_count }}</td>
+          <td class="px-5 py-3">{{ job.shortlisted_count }}</td>
+          <td class="px-5 py-3">
+            {% if job.status == 'active' %}
+              <span class="rounded-full bg-green-50 text-green-700 px-2.5 py-0.5 text-xs font-medium">Active</span>
+            {% elif job.status == 'closed' %}
+              <span class="rounded-full bg-red-50 text-red-700 px-2.5 py-0.5 text-xs font-medium">Closed</span>
+            {% else %}
+              <span class="rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5 text-xs font-medium">Draft</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3 text-slate-600">{{ job.created_at|date:"j M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-10 px-5">
+    <div class="mx-auto h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+      <i class="ti ti-briefcase text-2xl"></i>
+    </div>
+    <div class="text-sm font-medium">No jobs yet</div>
+    <p class="text-xs text-slate-500 mt-1 mb-4">Create your first job to start receiving applications.</p>
+    <a href="{% url 'job_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition">
+      <i class="ti ti-plus text-base"></i> Create Job
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- RECENT APPLICATIONS -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm mb-5 overflow-hidden">
+  <div class="flex items-center justify-between p-5">
+    <div>
+      <div class="text-sm font-semibold">Recent applications</div>
+      <div class="text-xs text-slate-500">The latest people who applied</div>
+    </div>
+    <a href="{% url 'compare_picker' %}"
+       class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition">
+      Compare candidates <i class="ti ti-arrow-up-right text-sm"></i>
+    </a>
+  </div>
+
+  {% if recent_apps %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-xs text-slate-500">
+        <tr>
+          <th class="text-left font-medium px-5 py-3">Candidate</th>
+          <th class="text-left font-medium px-5 py-3">Job</th>
+          <th class="text-left font-medium px-5 py-3">Score</th>
+          <th class="text-left font-medium px-5 py-3">Status</th>
+          <th class="text-left font-medium px-5 py-3">Date</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for a in recent_apps %}
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 shrink-0 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-semibold">{{ a.candidate_name|slice:":1"|upper }}</div>
+              <a href="{% url 'candidate_analysis' a.job.pk a.pk %}" class="font-medium text-indigo-600 hover:underline">{{ a.candidate_name }}</a>
+            </div>
+          </td>
+          <td class="px-5 py-3 text-slate-700">{{ a.job.title }}</td>
+          <td class="px-5 py-3">
+            {% if a.final_score >= 75 %}
+              <span class="rounded-md bg-green-50 text-green-700 px-2 py-0.5 text-xs font-semibold">{{ a.final_score|floatformat:1 }}%</span>
+            {% elif a.final_score >= 60 %}
+              <span class="rounded-md bg-amber-50 text-amber-700 px-2 py-0.5 text-xs font-semibold">{{ a.final_score|floatformat:1 }}%</span>
+            {% else %}
+              <span class="rounded-md bg-red-50 text-red-700 px-2 py-0.5 text-xs font-semibold">{{ a.final_score|floatformat:1 }}%</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3">
+            {% if a.status == 'shortlisted' or a.status == 'selected' %}
+              <span class="rounded-full bg-green-50 text-green-700 px-2.5 py-0.5 text-xs font-medium">{{ a.get_status_display }}</span>
+            {% elif a.status == 'interview' %}
+              <span class="rounded-full bg-violet-50 text-violet-700 px-2.5 py-0.5 text-xs font-medium">{{ a.get_status_display }}</span>
+            {% elif a.status == 'rejected' %}
+              <span class="rounded-full bg-red-50 text-red-700 px-2.5 py-0.5 text-xs font-medium">{{ a.get_status_display }}</span>
+            {% elif a.status == 'under_review' %}
+              <span class="rounded-full bg-blue-50 text-blue-700 px-2.5 py-0.5 text-xs font-medium">{{ a.get_status_display }}</span>
+            {% else %}
+              <span class="rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5 text-xs font-medium">{{ a.get_status_display }}</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3 text-slate-600">{{ a.applied_at|date:"j M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-10 px-5">
+    <div class="mx-auto h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+      <i class="ti ti-users text-2xl"></i>
+    </div>
+    <div class="text-sm font-medium">No applications yet</div>
+    <p class="text-xs text-slate-500 mt-1 mb-4">Publish a job and share the apply link, or upload a resume yourself.</p>
+    <a href="{% url 'analyze_resume' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition">
+      <i class="ti ti-file-search text-base"></i> Analyze Resume
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- INFO STRIP -->
+<div class="flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
+  <div class="h-10 w-10 shrink-0 rounded-xl bg-white text-indigo-600 flex items-center justify-center">
+    <i class="ti ti-shield-check text-xl"></i>
+  </div>
+  <div>
+    <div class="text-sm font-semibold text-indigo-900">Fair by design</div>
+    <p class="text-xs text-indigo-700 mt-1">Names, gender and photos are never used in scoring. ResuRank never rejects anyone automatically. You make every final decision.</p>
+  </div>
+</div>
+
+<div class="text-center text-xs text-slate-400 py-6">Human decisions. Better informed.</div>
+
+{% endblock %}

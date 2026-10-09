@@ -54,7 +54,9 @@
 
       <!-- Menu -->
       <nav class="flex-1 p-2 space-y-1 text-[13px]">
-        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+        <a href="{% url 'dashboard' %}"
+           class="flex items-center gap-2 px-3 py-2 rounded-lg
+           {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-layout-dashboard text-base"></i> Dashboard
         </a>
         <a href="{% url 'job_list' %}"

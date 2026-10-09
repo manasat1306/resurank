@@ -462,4 +462,32 @@ def account_settings(request):
 
 @login_required
 def help_page(request):
-    return render(request, 'resume_analyzer/help.html')    
+    return render(request, 'resume_analyzer/help.html') 
+
+@login_required
+def dashboard(request):
+    jobs_qs = Job.objects.filter(recruiter=request.user)
+    apps = Application.objects.filter(job__recruiter=request.user)
+    scored = apps.filter(final_score__gt=0)
+    stats = scored.aggregate(avg=Avg('final_score'))
+
+    recent_jobs = (
+        jobs_qs.annotate(
+            app_count=Count('applications'),
+            shortlisted_count=Count(
+                'applications', filter=Q(applications__status='shortlisted')
+            ),
+        )
+        .order_by('-created_at')[:5]
+    )
+    recent_apps = apps.select_related('job').order_by('-applied_at')[:6]
+
+    return render(request, 'resume_analyzer/dashboard.html', {
+        'first_name': request.user.first_name or request.user.username,
+        'active_jobs': jobs_qs.filter(status='active').count(),
+        'total_apps': apps.count(),
+        'shortlisted_count': apps.filter(status='shortlisted').count(),
+        'avg_score': stats['avg'] or 0,
+        'recent_jobs': recent_jobs,
+        'recent_apps': recent_apps,
+    })   
