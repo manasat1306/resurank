@@ -4,7 +4,11 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Q, Avg, Max, Count
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Job, Application, StatusHistory
+from .models import Job, Application, StatusHistory, RecruiterProfile
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from .settings_forms import ProfileForm
 from django.views.decorators.http import require_POST
 from .forms import JobForm
 from django.core.paginator import Paginator
@@ -415,4 +419,43 @@ def analytics(request):
             'status': status_rows,
             'scores': score_buckets,
         },
+    })
+
+@login_required
+def account_settings(request):
+    user = request.user
+    profile, _ = RecruiterProfile.objects.get_or_create(user=user)
+
+    profile_form = ProfileForm(initial={
+        'full_name': user.get_full_name(),
+        'company_name': profile.company_name,
+    })
+    password_form = PasswordChangeForm(user)
+
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+
+        if form_type == 'profile':
+            profile_form = ProfileForm(request.POST)
+            if profile_form.is_valid():
+                parts = profile_form.cleaned_data['full_name'].strip().split(None, 1)
+                user.first_name = parts[0] if parts else ''
+                user.last_name = parts[1] if len(parts) > 1 else ''
+                user.save()
+                profile.company_name = profile_form.cleaned_data['company_name'].strip()
+                profile.save()
+                messages.success(request, 'Your profile has been updated.')
+                return redirect('account_settings')
+
+        elif form_type == 'password':
+            password_form = PasswordChangeForm(user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # keeps you logged in
+                messages.success(request, 'Your password has been changed.')
+                return redirect('account_settings')
+
+    return render(request, 'resume_analyzer/settings.html', {
+        'profile_form': profile_form,
+        'password_form': password_form,
     })

@@ -7,6 +7,9 @@
   <title>{% block title %}ResuRank{% endblock %} | ResuRank</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    try { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); } } catch (e) {}
+  </script>
   <link rel="icon" type="image/svg+xml" href="{% static 'resume_analyzer/img/logo.svg' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,6 +23,17 @@
         linear-gradient(#eef2f7 1px, transparent 1px),
         linear-gradient(90deg, #eef2f7 1px, transparent 1px);
       background-size: 24px 24px;
+    }
+
+    /* DARK MODE (covers every page) */
+    html.dark {
+      background: #ffffff;
+      filter: invert(0.92) hue-rotate(180deg);
+    }
+    html.dark img,
+    html.dark canvas,
+    html.dark video {
+      filter: invert(1) hue-rotate(180deg);
     }
   </style>
   {% block extra_head %}{% endblock %}
@@ -63,7 +77,9 @@
            {% if request.resolver_match.url_name == 'analytics' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-chart-bar text-base"></i> Analytics
         </a>
-        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+        <a href="{% url 'account_settings' %}"
+           class="flex items-center gap-2 px-3 py-2 rounded-lg
+           {% if request.resolver_match.url_name == 'account_settings' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-settings text-base"></i> Settings
         </a>
       </nav>
@@ -100,5 +116,6 @@
     </div>
 
   </div>
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>
