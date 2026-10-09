@@ -1,5 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q, Avg, Max
+from collections import Counter
+from datetime import timedelta
+from django.utils import timezone
+from django.db.models import Q, Avg, Max, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Job, Application, StatusHistory
 from django.views.decorators.http import require_POST
@@ -325,3 +328,91 @@ def compare_picker(request):
         'selected_job': selected_job,
         'applicants': applicants,
     })    
+
+@login_required
+def analytics(request):
+    apps = Application.objects.filter(job__recruiter=request.user)
+    scored = apps.filter(final_score__gt=0)
+    stats = scored.aggregate(avg=Avg('final_score'), top=Max('final_score'))
+
+    # Status breakdown (all 6 statuses, even if 0)
+    raw = {r['status']: r['n'] for r in apps.values('status').annotate(n=Count('id'))}
+    status_rows = [
+        {'key': key, 'label': label, 'count': raw.get(key, 0)}
+        for key, label in Application.STATUS_CHOICES
+    ]
+
+    # Applications per week (last 6 weeks)
+    now = timezone.now()
+    weekly = []
+    for i in range(5, -1, -1):
+        end = now - timedelta(weeks=i)
+        start = end - timedelta(weeks=1)
+        weekly.append({
+            'label': start.strftime('%b %d'),
+            'count': apps.filter(applied_at__gt=start, applied_at__lte=end).count(),
+        })
+
+    # Score distribution (6 buckets)
+    edges = [(0, 50, '<50'), (50, 60, '50+'), (60, 70, '60+'),
+             (70, 80, '70+'), (80, 90, '80+'), (90, 101, '90+')]
+    score_buckets = [
+        {
+            'label': label,
+            'low': low,
+            'count': scored.filter(final_score__gte=low, final_score__lt=high).count(),
+        }
+        for low, high, label in edges
+    ]
+
+    # Most missing skills, split by severity
+    skill_data = {}
+    for a in scored:
+        sev_map = {}
+        for item in (a.severity_analysis or []):
+            if isinstance(item, dict):
+                sev_map[item.get('skill')] = str(item.get('severity', '')).lower()
+        for skill in (a.missing_skills or []):
+            sev = sev_map.get(skill, 'unclear')
+            if sev not in ('critical', 'moderate'):
+                sev = 'unclear'
+            row = skill_data.setdefault(
+                skill, {'skill': skill, 'critical': 0, 'moderate': 0, 'unclear': 0}
+            )
+            row[sev] += 1
+    top_missing = sorted(
+        skill_data.values(),
+        key=lambda r: r['critical'] + r['moderate'] + r['unclear'],
+        reverse=True,
+    )[:6]
+    for r in top_missing:
+        r['total'] = r['critical'] + r['moderate'] + r['unclear']
+
+    # Jobs performance table
+    jobs = (
+        Job.objects.filter(recruiter=request.user)
+        .annotate(
+            app_count=Count('applications'),
+            avg_score=Avg('applications__final_score',
+                          filter=Q(applications__final_score__gt=0)),
+            top_score=Max('applications__final_score'),
+        )
+        .order_by('-created_at')
+    )
+
+    return render(request, 'resume_analyzer/analytics.html', {
+        'total_jobs': jobs.count(),
+        'active_jobs': jobs.filter(status='active').count(),
+        'total_apps': apps.count(),
+        'processed_count': scored.count(),
+        'shortlisted_count': raw.get('shortlisted', 0),
+        'avg_score': stats['avg'] or 0,
+        'jobs': jobs,
+        'status_rows': status_rows,
+        'top_missing': top_missing,
+        'chart_data': {
+            'weekly': weekly,
+            'status': status_rows,
+            'scores': score_buckets,
+        },
+    })

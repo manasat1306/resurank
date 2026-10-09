@@ -1,0 +1,256 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+{% block page_subtitle %}See how your hiring is going{% endblock %}
+
+{% block content %}
+
+<!-- KPI CARDS -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-5">
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+      <i class="ti ti-briefcase text-lg"></i>
+    </div>
+    <div class="text-2xl font-bold">{{ total_jobs }}</div>
+    <div class="text-xs text-slate-500">Total Jobs</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+      <i class="ti ti-activity text-lg"></i>
+    </div>
+    <div class="text-2xl font-bold">{{ active_jobs }}</div>
+    <div class="text-xs text-slate-500">Active Jobs</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-9 w-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3">
+      <i class="ti ti-users text-lg"></i>
+    </div>
+    <div class="text-2xl font-bold">{{ total_apps }}</div>
+    <div class="text-xs text-slate-500">Applications</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-9 w-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-3">
+      <i class="ti ti-circle-check text-lg"></i>
+    </div>
+    <div class="text-2xl font-bold">{{ processed_count }}</div>
+    <div class="text-xs text-slate-500">Processed</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+      <i class="ti ti-star text-lg"></i>
+    </div>
+    <div class="text-2xl font-bold">{{ shortlisted_count }}</div>
+    <div class="text-xs text-slate-500">Shortlisted</div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+    <div class="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+      <i class="ti ti-chart-bar text-lg"></i>
+    </div>
+    <div class="text-2xl font-bold flex items-center gap-2">
+      {{ avg_score|floatformat:0 }}%
+      <span class="h-2 w-2 rounded-full {% if avg_score >= 80 %}bg-green-500{% elif avg_score >= 60 %}bg-amber-500{% else %}bg-red-500{% endif %}"></span>
+    </div>
+    <div class="text-xs text-slate-500">Average Score</div>
+  </div>
+
+</div>
+
+<!-- ROW 1: WEEKLY + STATUS -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+
+  <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <div class="text-sm font-semibold">Applications over time</div>
+    <div class="text-xs text-slate-500 mb-3">Your application activity, week by week</div>
+    {% if total_apps %}
+      <div class="relative h-64"><canvas id="chart-weekly"></canvas></div>
+    {% else %}
+      <div class="h-64 flex flex-col items-center justify-center text-slate-400">
+        <i class="ti ti-chart-line text-3xl mb-2"></i>
+        <div class="text-sm">No applications yet</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <div class="text-sm font-semibold">Status breakdown</div>
+    <div class="text-xs text-slate-500 mb-3">A snapshot of your hiring pipeline</div>
+    {% if total_apps %}
+      <div class="relative h-44 mb-4">
+        <canvas id="chart-status"></canvas>
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <div class="text-2xl font-bold">{{ total_apps }}</div>
+          <div class="text-[11px] text-slate-400">Applications</div>
+        </div>
+      </div>
+      <div class="space-y-2 text-xs">
+        {% for s in status_rows %}
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-slate-600">
+            <span class="h-2.5 w-2.5 rounded-full
+              {% if s.key == 'new' %}bg-slate-400
+              {% elif s.key == 'under_review' %}bg-indigo-400
+              {% elif s.key == 'shortlisted' %}bg-indigo-600
+              {% elif s.key == 'interview' %}bg-cyan-500
+              {% elif s.key == 'selected' %}bg-emerald-500
+              {% else %}bg-red-500{% endif %}"></span>
+            {{ s.label }}
+          </div>
+          <div class="font-semibold">{{ s.count }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="h-64 flex flex-col items-center justify-center text-slate-400">
+        <i class="ti ti-chart-donut text-3xl mb-2"></i>
+        <div class="text-sm">No data yet</div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ROW 2: SCORE + MISSING SKILLS -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+
+  <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <div class="text-sm font-semibold">Score distribution</div>
+    <div class="text-xs text-slate-500 mb-3">How candidates align with your job requirements</div>
+    {% if processed_count %}
+      <div class="relative h-64"><canvas id="chart-score"></canvas></div>
+      <div class="flex items-center justify-center gap-4 mt-3 text-[11px] text-slate-500">
+        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-red-500"></span>Below 60</span>
+        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span>60-79</span>
+        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-green-500"></span>80+</span>
+      </div>
+    {% else %}
+      <div class="h-64 flex flex-col items-center justify-center text-slate-400">
+        <i class="ti ti-chart-bar text-3xl mb-2"></i>
+        <div class="text-sm">No scored candidates yet</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <div class="text-sm font-semibold">Most missing skills</div>
+    <div class="text-xs text-slate-500 mb-4">Common gaps worth a closer look</div>
+    {% if top_missing %}
+      <div class="space-y-4">
+        {% for r in top_missing %}
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-medium text-slate-700">{{ r.skill }}</span>
+            <span class="text-slate-500">{{ r.total }}</span>
+          </div>
+          <div class="h-2.5 rounded-full overflow-hidden flex" style="width: {% widthratio r.total top_missing.0.total 100 %}%">
+            {% if r.critical %}<div class="bg-red-500" style="flex: {{ r.critical }}"></div>{% endif %}
+            {% if r.moderate %}<div class="bg-amber-500" style="flex: {{ r.moderate }}"></div>{% endif %}
+            {% if r.unclear %}<div class="bg-slate-300" style="flex: {{ r.unclear }}"></div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="flex items-center gap-4 mt-5 text-[11px] text-slate-500">
+        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-red-500"></span>Critical</span>
+        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span>Moderate</span>
+        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Unclear</span>
+      </div>
+    {% else %}
+      <div class="h-56 flex flex-col items-center justify-center text-slate-400">
+        <i class="ti ti-target text-3xl mb-2"></i>
+        <div class="text-sm">No missing skills found</div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- JOBS PERFORMANCE -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-5">
+  <div class="px-5 py-4 flex items-center justify-between">
+    <div>
+      <div class="text-sm font-semibold">Jobs performance</div>
+      <div class="text-xs text-slate-500">A closer look at each role you're hiring for</div>
+    </div>
+    <span class="text-[11px] px-2 py-1 rounded-full bg-slate-100 text-slate-500">{{ total_jobs }} job{{ total_jobs|pluralize }}</span>
+  </div>
+
+  {% if jobs %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 border-y border-slate-200 text-xs text-slate-500">
+        <tr>
+          <th class="text-left font-medium px-5 py-2.5">Job title</th>
+          <th class="text-left font-medium px-5 py-2.5">Status</th>
+          <th class="text-left font-medium px-5 py-2.5">Applicants</th>
+          <th class="text-left font-medium px-5 py-2.5">Average score</th>
+          <th class="text-left font-medium px-5 py-2.5">Top score</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for j in jobs %}
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3">
+            <div class="font-medium text-slate-800">{{ j.title }}</div>
+            {% if j.department %}<div class="text-xs text-slate-400">{{ j.department }}</div>{% endif %}
+          </td>
+          <td class="px-5 py-3">
+            <span class="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full
+              {% if j.status == 'active' %}bg-green-50 text-green-700
+              {% elif j.status == 'closed' %}bg-slate-100 text-slate-600
+              {% else %}bg-amber-50 text-amber-700{% endif %}">
+              <span class="h-1.5 w-1.5 rounded-full
+                {% if j.status == 'active' %}bg-green-500
+                {% elif j.status == 'closed' %}bg-slate-400
+                {% else %}bg-amber-500{% endif %}"></span>
+              {{ j.get_status_display }}
+            </span>
+          </td>
+          <td class="px-5 py-3 font-semibold text-indigo-600">{{ j.app_count }}</td>
+          <td class="px-5 py-3">
+            {% if j.avg_score %}
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold w-9">{{ j.avg_score|floatformat:0 }}%</span>
+                <div class="h-1.5 w-20 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full rounded-full {% if j.avg_score >= 80 %}bg-green-500{% elif j.avg_score >= 60 %}bg-amber-500{% else %}bg-red-500{% endif %}"
+                       style="width: {{ j.avg_score|floatformat:0 }}%"></div>
+                </div>
+              </div>
+            {% else %}
+              <span class="text-slate-300">—</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3">
+            {% if j.top_score %}
+              <span class="font-semibold {% if j.top_score >= 80 %}text-green-600{% elif j.top_score >= 60 %}text-amber-600{% else %}text-red-600{% endif %}">{{ j.top_score|floatformat:0 }}%</span>
+            {% else %}
+              <span class="text-slate-300">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="py-12 flex flex-col items-center justify-center text-slate-400">
+    <i class="ti ti-briefcase text-3xl mb-2"></i>
+    <div class="text-sm">No jobs yet</div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="text-center text-xs text-slate-400 py-4">Human decisions. Better informed.</div>
+
+{{ chart_data|json_script:"analytics-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'resume_analyzer/js/analytics.js' %}"></script>
+
+{% endblock %}
