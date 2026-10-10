@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResuRank | Find opportunities. Hire with confidence.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="{% static 'resume_analyzer/img/logo.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-slate-50 text-slate-900">
+
+  <div class="mx-auto flex min-h-screen max-w-5xl flex-col px-6">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between py-5">
+      <div class="flex items-center gap-2">
+        <img src="{% static 'resume_analyzer/img/logo.svg' %}" class="h-9 w-9" alt="ResuRank logo">
+        <span class="text-lg font-extrabold tracking-tight">ResuRank</span>
+      </div>
+      <a href="{% url 'login' %}" class="text-sm font-semibold text-slate-600 hover:text-indigo-600">Recruiter sign in</a>
+    </header>
+
+    <!-- Hero -->
+    <section class="pt-10 text-center">
+      <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-600">Explainable recruitment intelligence</p>
+      <h1 class="mt-6 text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+        Find opportunities.<br>
+        Hire with <span class="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">confidence.</span>
+      </h1>
+      <p class="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-slate-500">
+        ResuRank connects candidates with relevant opportunities and helps recruiters discover the right talent, with every match explained.
+      </p>
+    </section>
+
+    <!-- Choice -->
+    <section class="mt-14">
+      <p class="text-center text-xs font-semibold text-slate-800">How are you using ResuRank?</p>
+
+      <div class="mx-auto mt-5 grid max-w-3xl grid-cols-1 gap-5 md:grid-cols-2">
+
+        <!-- Candidate -->
+        <a href="{% url 'candidate:job_list' %}"
+           class="group block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg">
+          <div class="flex items-center justify-between">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"><i class="ti ti-user text-lg"></i></span>
+            <i class="ti ti-briefcase text-indigo-500"></i>
+          </div>
+          <p class="mt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">For talent</p>
+          <h2 class="mt-1 text-xl font-extrabold">I'm a Candidate</h2>
+          <p class="mt-2 text-xs leading-relaxed text-slate-500">Discover jobs that fit your skills, apply with your resume, and track your journey.</p>
+          <ul class="mt-5 space-y-2 text-xs font-medium text-slate-700">
+            <li class="flex items-center gap-2"><i class="ti ti-check text-indigo-500"></i> Discover Jobs</li>
+            <li class="flex items-center gap-2"><i class="ti ti-check text-indigo-500"></i> Apply with Your Resume</li>
+            <li class="flex items-center gap-2"><i class="ti ti-check text-indigo-500"></i> Track Applications</li>
+          </ul>
+        </a>
+
+        <!-- Recruiter -->
+        <a href="{% url 'login' %}"
+           class="group block rounded-2xl border border-indigo-200 bg-white p-6 shadow-md shadow-indigo-100 transition hover:-translate-y-0.5 hover:shadow-lg">
+          <div class="flex items-center justify-between">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"><i class="ti ti-users text-lg"></i></span>
+            <i class="ti ti-sparkles text-indigo-500"></i>
+          </div>
+          <p class="mt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-indigo-600">For teams</p>
+          <h2 class="mt-1 text-xl font-extrabold">I'm a Recruiter</h2>
+          <p class="mt-2 text-xs leading-relaxed text-slate-500">Create jobs, screen resumes, rank candidates, and understand exactly why each candidate received their score.</p>
+          <ul class="mt-5 space-y-2 text-xs font-medium text-slate-700">
+            <li class="flex items-center gap-2"><i class="ti ti-circle-check-filled text-indigo-600"></i> Screen resumes faster</li>
+            <li class="flex items-center gap-2"><i class="ti ti-circle-check-filled text-indigo-600"></i> Rank candidates</li>
+            <li class="flex items-center gap-2"><i class="ti ti-circle-check-filled text-indigo-600"></i> Understand every score</li>
+          </ul>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Pillars -->
+    <section class="mt-14 border-t border-slate-200 pt-8 text-center">
+      <p class="text-sm font-extrabold">One platform. A clearer way to connect talent.</p>
+      <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
+        <span class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-semibold shadow-sm"><i class="ti ti-search text-indigo-500"></i> Job Discovery</span>
+        <span class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-semibold shadow-sm"><i class="ti ti-target text-indigo-500"></i> Skill Matching</span>
+        <span class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-semibold shadow-sm"><i class="ti ti-sparkles text-indigo-500"></i> Explainable Hiring</span>
+      </div>
+    </section>
+
+    <footer class="mt-auto border-t border-slate-200 py-6 text-center text-[11px] text-slate-500">
+      © 2026 ResuRank · Scores support recruiters. Humans make every final decision.
+    </footer>
+
+  </div>
+</body>
+</html>

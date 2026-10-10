@@ -657,3 +657,9 @@ def all_applicants(request):
         'jobs': Job.objects.filter(recruiter=request.user).order_by('title'),
         'selected_job': int(job_id) if job_id.isdigit() else '',
     })
+
+def landing(request):
+    # Logged-in recruiters go straight to the Dashboard
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'resume_analyzer/landing.html')

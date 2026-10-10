@@ -136,7 +136,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 
 # Uploaded files (candidate resumes)
 MEDIA_URL = '/media/'

@@ -3,7 +3,7 @@ from django.views.generic import RedirectView
 from . import views, job_views
 
 urlpatterns = [
-    path('', RedirectView.as_view(pattern_name='dashboard', permanent=False), name='home'),
+    path('', job_views.landing, name='home'),
     path('signup/', views.signup, name='signup'),
     path('dashboard/', job_views.dashboard, name='dashboard'),
     path('jobs/', job_views.job_list, name='job_list'),
