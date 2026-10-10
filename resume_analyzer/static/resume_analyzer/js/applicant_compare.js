@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div style="height:56px;width:56px;margin:0 auto 16px;border-radius:16px;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:28px"><i class="ti ti-crown"></i></div>' +
               '<div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:8px">You reached your compare limit</div>' +
               '<div style="font-size:14px;color:#64748b;margin-bottom:24px">The Free plan lets you compare up to ' + MAX + ' candidates at a time. Upgrade to Pro to compare unlimited candidates.</div>' +
-              '<a href="/plans/" style="display:block;background:linear-gradient(to right,#4f46e5,#7c3aed);color:#ffffff;font-weight:600;font-size:14px;padding:12px 16px;border-radius:10px;text-decoration:none;margin-bottom:10px">Upgrade to Pro</a>' +
+              '<a href="/plans/checkout/" style="display:block;background:linear-gradient(to right,#4f46e5,#7c3aed);color:#ffffff;font-weight:600;font-size:14px;padding:12px 16px;border-radius:10px;text-decoration:none;margin-bottom:10px">Upgrade to Pro</a>' +
               '<button id="upgrade-modal-later" type="button" style="border:none;background:none;color:#64748b;font-size:13px;cursor:pointer;padding:6px">Maybe later</button>' +
             '</div>';
 
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (limitHit && !UNLIMITED) {
             hint.style.color = '#d97706';
             hint.innerHTML = 'Free plan allows up to ' + MAX + ' candidates. ' +
-                '<a href="/plans/" class="font-semibold underline">Upgrade to Pro</a> to compare more.';
+                '<a href="/plans/checkout/" class="font-semibold underline">Upgrade to Pro</a> to compare more.';
             return;
         }
 
