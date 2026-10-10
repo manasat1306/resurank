@@ -1,0 +1,159 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Plans{% endblock %}
+{% block page_title %}Plans{% endblock %}
+{% block page_subtitle %}Your plan and what you have used{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+  {% for message in messages %}
+    {% if message.tags == 'error' %}
+    <div class="mb-5 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <i class="ti ti-alert-circle text-lg"></i> {{ message }}
+    </div>
+    {% else %}
+    <div class="mb-5 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+      <i class="ti ti-circle-check text-lg"></i> {{ message }}
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<!-- CURRENT PLAN BANNER -->
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 shadow-sm mb-5">
+  <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"></div>
+  <div class="relative flex items-center gap-4">
+    <div class="h-12 w-12 rounded-xl bg-white/15 text-white flex items-center justify-center">
+      <i class="ti ti-crown text-2xl"></i>
+    </div>
+    <div>
+      <div class="text-xs text-indigo-100">Your current plan</div>
+      <div class="text-xl font-semibold text-white">
+        {% if current_plan == 'pro' %}Pro{% else %}Free{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USAGE -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i class="ti ti-briefcase text-xl"></i>
+      </div>
+      <div>
+        <div class="text-sm font-semibold">Active jobs</div>
+        <div class="text-xs text-slate-500">Jobs that accept applications</div>
+      </div>
+    </div>
+    {% if jobs_limit %}
+      <div class="flex items-end justify-between mb-2">
+        <div class="text-2xl font-semibold">{{ jobs_used }} <span class="text-sm font-normal text-slate-400">of {{ jobs_limit }} used</span></div>
+        <div class="text-xs text-slate-500">{{ jobs_percent }}%</div>
+      </div>
+      <div class="h-2 w-full rounded-full bg-slate-100">
+        <div class="h-2 rounded-full {% if jobs_percent >= 100 %}bg-rose-500{% else %}bg-indigo-500{% endif %}" style="width: {{ jobs_percent }}%"></div>
+      </div>
+    {% else %}
+      <div class="text-2xl font-semibold">{{ jobs_used }} <span class="text-sm font-normal text-emerald-600">Unlimited</span></div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+        <i class="ti ti-file-upload text-xl"></i>
+      </div>
+      <div>
+        <div class="text-sm font-semibold">Resume uploads</div>
+        <div class="text-xs text-slate-500">Analyze Resume uploads in the last 30 days</div>
+      </div>
+    </div>
+    {% if uploads_limit %}
+      <div class="flex items-end justify-between mb-2">
+        <div class="text-2xl font-semibold">{{ uploads_used }} <span class="text-sm font-normal text-slate-400">of {{ uploads_limit }} used</span></div>
+        <div class="text-xs text-slate-500">{{ uploads_percent }}%</div>
+      </div>
+      <div class="h-2 w-full rounded-full bg-slate-100">
+        <div class="h-2 rounded-full {% if uploads_percent >= 100 %}bg-rose-500{% else %}bg-blue-500{% endif %}" style="width: {{ uploads_percent }}%"></div>
+      </div>
+    {% else %}
+      <div class="text-2xl font-semibold">{{ uploads_used }} <span class="text-sm font-normal text-emerald-600">Unlimited</span></div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- PRICING CARDS -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-4xl">
+
+  <!-- FREE -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm {% if current_plan == 'free' %}border-2 border-indigo-500{% else %}border border-slate-200{% endif %}">
+    <div class="flex items-center justify-between">
+      <div class="text-sm font-semibold">Free</div>
+      {% if current_plan == 'free' %}
+        <span class="rounded-full bg-indigo-50 text-indigo-700 px-2.5 py-0.5 text-xs font-medium">Current plan</span>
+      {% endif %}
+    </div>
+    <div class="mt-3 text-3xl font-bold">₹0 <span class="text-sm font-normal text-slate-400">/ month</span></div>
+    <p class="text-xs text-slate-500 mt-1">Great for trying ResuRank</p>
+
+    <ul class="mt-5 space-y-3 text-sm text-slate-700">
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Up to 3 active jobs</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> 50 resume uploads per month</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Compare up to 4 candidates</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Unlimited candidate applications</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Explainable scores and analytics</li>
+    </ul>
+
+    <div class="mt-6">
+      {% if current_plan == 'free' %}
+        <div class="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center text-sm font-medium text-slate-500">Current plan</div>
+      {% else %}
+        <form method="post" action="{% url 'switch_plan' %}">
+          {% csrf_token %}
+          <input type="hidden" name="plan" value="free">
+          <button type="submit" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">Switch to Free</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PRO -->
+  <div class="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm {% if current_plan == 'pro' %}border-2 border-indigo-500{% else %}border border-slate-200{% endif %}">
+    <div class="absolute right-0 top-0 rounded-bl-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-1 text-[11px] font-semibold text-white">Most popular</div>
+
+    <div class="text-sm font-semibold">Pro</div>
+    <div class="mt-3 text-3xl font-bold">₹999 <span class="text-sm font-normal text-slate-400">/ month</span></div>
+    <p class="text-xs text-slate-500 mt-1">For teams that hire often</p>
+
+    <ul class="mt-5 space-y-3 text-sm text-slate-700">
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Unlimited active jobs</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Unlimited resume uploads</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Compare unlimited candidates</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Unlimited candidate applications</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Explainable scores and analytics</li>
+    </ul>
+
+    <div class="mt-6">
+      {% if current_plan == 'pro' %}
+        <div class="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center text-sm font-medium text-slate-500">Current plan</div>
+      {% else %}
+        <form method="post" action="{% url 'switch_plan' %}">
+          {% csrf_token %}
+          <input type="hidden" name="plan" value="pro">
+          <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition">Upgrade to Pro (demo)</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<div class="text-center text-xs text-slate-400 py-6">Human decisions. Better informed.</div>
+
+{% endblock %}

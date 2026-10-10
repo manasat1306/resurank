@@ -131,10 +131,15 @@ class StatusHistory(models.Model):
     def __str__(self):
         return f"{self.application} → {self.status}"
 
-
 class RecruiterProfile(models.Model):
+    PLAN_CHOICES = [
+        ('free', 'Free'),
+        ('pro', 'Pro'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     company_name = models.CharField(max_length=150, blank=True)
+    plan = models.CharField(max_length=10, choices=PLAN_CHOICES, default='free')
 
     def __str__(self):
-        return f"{self.user.username} - {self.company_name}"    
+        return f"{self.user.username} - {self.company_name}"

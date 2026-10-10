@@ -17,6 +17,10 @@ from .resume_quality import analyze_resume_quality
 from .resume_parts import extract_resume_parts
 from .analyze_forms import AnalyzeResumeForm
 from .scoring import score_application
+from .plans import (
+    get_limits, can_activate_job, can_accept_application,
+    get_plan, active_jobs_used, apps_used_this_month,
+)
 
 
 @login_required
@@ -74,12 +78,17 @@ def job_list(request):
 
 @login_required
 def job_create(request):
+    limit_reached = False
+    limit_number = None
     if request.method == 'POST':
         form = JobForm(request.POST)
         action = request.POST.get('action')  # 'draft' or 'publish'
         if form.is_valid():
             if action == 'publish' and not form.cleaned_data['required_skills']:
                 form.add_error('required_skills', 'Add at least one required skill to publish.')
+            elif action == 'publish' and not can_activate_job(request.user):
+                limit_reached = True
+                limit_number = get_limits(request.user)['active_jobs']
             else:
                 job = form.save(commit=False)
                 job.recruiter = request.user
@@ -90,12 +99,17 @@ def job_create(request):
     else:
         form = JobForm(initial={'skill_weight': 70})
 
-    return render(request, 'resume_analyzer/job_form.html', {'form': form})
+    return render(request, 'resume_analyzer/job_form.html', {
+        'form': form,
+        'limit_reached': limit_reached,
+        'limit_number': limit_number,
+    })
 
 @login_required
 def job_edit(request, pk):
     # recruiter=request.user means you can only edit your own jobs
     job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+    was_active = job.status == 'active'
 
     if request.method == 'POST':
         form = JobForm(request.POST, instance=job)
@@ -103,6 +117,12 @@ def job_edit(request, pk):
         if form.is_valid():
             if action == 'publish' and not form.cleaned_data['required_skills']:
                 form.add_error('required_skills', 'Add at least one required skill to publish.')
+            elif action == 'publish' and not was_active and not can_activate_job(request.user):
+                limit = get_limits(request.user)['active_jobs']
+                form.add_error(
+                    'required_skills',
+                    f'Your Free plan allows {limit} active jobs. Save your changes, or upgrade to Pro to publish more.'
+                )
             else:
                 job = form.save(commit=False)
                 job.similarity_weight = 100 - job.skill_weight
@@ -132,6 +152,13 @@ def job_publish(request, pk):
     if request.method == 'POST':
         if not job.required_skills:
             return redirect('job_edit', pk=job.pk)
+        if job.status != 'active' and not can_activate_job(request.user):
+            limit = get_limits(request.user)['active_jobs']
+            messages.error(
+                request,
+                f'Your Free plan allows {limit} active jobs. Upgrade to Pro to publish more.'
+            )
+            return redirect('plans')
         job.status = 'active'
         job.save()
     return redirect('job_detail', pk=job.pk)
@@ -163,6 +190,7 @@ def job_applicants(request, pk):
         'shortlisted_count': job.applications.filter(status='shortlisted').count(),
         'avg_score': stats['avg'] or 0,
         'top_score': stats['top'] or 0,
+        'compare_max': get_limits(request.user)['compare'],
     })
 
 @login_required
@@ -226,6 +254,13 @@ def analyze_resume(request):
         form = AnalyzeResumeForm(request.POST, request.FILES, recruiter=request.user)
         if form.is_valid():
             job = form.cleaned_data['job']  # already limited to this recruiter's jobs
+            if not can_accept_application(request.user):
+                limit = get_limits(request.user)['apps_per_month']
+                messages.error(
+                    request,
+                    f'Your Free plan allows {limit} resume uploads per month. Upgrade to Pro for unlimited uploads.'
+                )
+                return redirect('plans')
             application = Application.objects.create(
                 job=job,
                 candidate_name=form.cleaned_data['candidate_name'],
@@ -260,7 +295,7 @@ def compare_candidates(request, pk):
         part = part.strip()
         if part.isdigit() and int(part) not in ids:
             ids.append(int(part))
-    ids = ids[:4]
+    ids = ids[:get_limits(request.user)['compare']]
 
     found = {a.pk: a for a in job.applications.filter(pk__in=ids)}
     candidates = [found[i] for i in ids if i in found]
@@ -491,3 +526,38 @@ def dashboard(request):
         'recent_jobs': recent_jobs,
         'recent_apps': recent_apps,
     })   
+
+@login_required
+def plans_page(request):
+    limits = get_limits(request.user)
+    jobs_used = active_jobs_used(request.user)
+    uploads_used = apps_used_this_month(request.user)
+
+    jobs_limit = limits['active_jobs']
+    uploads_limit = limits['apps_per_month']
+
+    return render(request, 'resume_analyzer/plans.html', {
+        'current_plan': get_plan(request.user),
+        'jobs_used': jobs_used,
+        'jobs_limit': jobs_limit,
+        'jobs_percent': min(round(jobs_used * 100 / jobs_limit), 100) if jobs_limit else 0,
+        'uploads_used': uploads_used,
+        'uploads_limit': uploads_limit,
+        'uploads_percent': min(round(uploads_used * 100 / uploads_limit), 100) if uploads_limit else 0,
+    })
+
+
+@login_required
+@require_POST
+def switch_plan(request):
+    # Demo only: no real payment. Lets you show the full Free/Pro flow.
+    new_plan = request.POST.get('plan')
+    if new_plan in ('free', 'pro'):
+        profile, _ = RecruiterProfile.objects.get_or_create(user=request.user)
+        profile.plan = new_plan
+        profile.save()
+        if new_plan == 'pro':
+            messages.success(request, 'You are now on the Pro plan. Enjoy unlimited jobs and uploads.')
+        else:
+            messages.success(request, 'You are now on the Free plan.')
+    return redirect('plans')

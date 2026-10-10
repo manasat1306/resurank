@@ -90,6 +90,12 @@
            {% if request.resolver_match.url_name == 'help' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
           <i class="ti ti-help-circle text-base"></i> Help
         </a>
+
+        <a href="{% url 'plans' %}"
+           class="flex items-center gap-2 px-3 py-2 rounded-lg
+           {% if request.resolver_match.url_name == 'plans' %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+          <i class="ti ti-crown text-base"></i> Plans
+        </a>
       </nav>
 
       <!-- Logged-in user -->

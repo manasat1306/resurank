@@ -21,5 +21,7 @@ urlpatterns = [
     path('analytics/', job_views.analytics, name='analytics'),
     path('settings/', job_views.account_settings, name='account_settings'),
     path('help/', job_views.help_page, name='help'),
+    path('plans/', job_views.plans_page, name='plans'),
+    path('plans/switch/', job_views.switch_plan, name='switch_plan'),
         
 ]

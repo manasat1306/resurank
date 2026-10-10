@@ -534,7 +534,34 @@
 
 </form>
 
-
+{% if limit_reached %}
+<div id="upgrade-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+  <div class="relative w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-2xl">
+    <button type="button" id="upgrade-modal-x" aria-label="Close"
+            class="absolute right-4 top-3 text-3xl leading-none text-slate-400 hover:text-slate-600">&times;</button>
+    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+      <i class="ti ti-crown text-3xl"></i>
+    </div>
+    <div class="mb-2 text-xl font-bold text-slate-900">You reached your active jobs limit</div>
+    <p class="mb-6 text-sm text-slate-500">
+      The Free plan allows up to {{ limit_number }} active jobs. Upgrade to Pro to publish unlimited jobs, or save this one as a draft for now.
+    </p>
+    <a href="{% url 'plans' %}"
+       class="mb-2 block rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Upgrade to Pro</a>
+    <button type="button" id="upgrade-modal-later" class="p-2 text-sm text-slate-500 hover:text-slate-700">Maybe later</button>
+  </div>
+</div>
+<script>
+  (function () {
+    var modal = document.getElementById('upgrade-modal');
+    function closeModal() { if (modal) modal.remove(); }
+    document.getElementById('upgrade-modal-x').addEventListener('click', closeModal);
+    document.getElementById('upgrade-modal-later').addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+  })();
+</script>
+{% endif %}
 
 <script src="{% static 'resume_analyzer/js/job_form.js' %}"></script>
 
