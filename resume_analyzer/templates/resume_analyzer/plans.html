@@ -143,11 +143,7 @@
       {% if current_plan == 'pro' %}
         <div class="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center text-sm font-medium text-slate-500">Current plan</div>
       {% else %}
-        <form method="post" action="{% url 'switch_plan' %}">
-          {% csrf_token %}
-          <input type="hidden" name="plan" value="pro">
-          <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition">Upgrade to Pro (demo)</button>
-        </form>
+        <a href="{% url 'checkout' %}" class="block w-full rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-center text-sm font-medium text-white hover:opacity-90 transition">Upgrade to Pro</a>
       {% endif %}
     </div>
   </div>

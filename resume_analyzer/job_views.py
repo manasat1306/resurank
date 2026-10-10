@@ -561,3 +561,20 @@ def switch_plan(request):
         else:
             messages.success(request, 'You are now on the Free plan.')
     return redirect('plans')
+
+@login_required
+def checkout_page(request):
+    # Demo checkout: no real payment and no card details are collected.
+    if get_plan(request.user) == 'pro':
+        return redirect('plans')
+
+    if request.method == 'POST':
+        profile, _ = RecruiterProfile.objects.get_or_create(user=request.user)
+        profile.plan = 'pro'
+        profile.save()
+        messages.success(request, 'Payment successful (demo). You are now on the Pro plan.')
+        return redirect('plans')
+
+    return render(request, 'resume_analyzer/checkout.html', {
+        'price': 999,
+    })

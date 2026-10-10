@@ -1,0 +1,71 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+{% block page_title %}Checkout{% endblock %}
+{% block page_subtitle %}Upgrade to Pro{% endblock %}
+
+{% block content %}
+
+<a href="{% url 'plans' %}" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition mb-5">
+  <i class="ti ti-arrow-left"></i> Back to Plans
+</a>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-5xl">
+
+  <!-- LEFT: what you get -->
+  <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i class="ti ti-crown text-2xl"></i>
+      </div>
+      <div>
+        <div class="text-base font-semibold">ResuRank Pro</div>
+        <div class="text-xs text-slate-500">For teams that hire often</div>
+      </div>
+    </div>
+
+    <ul class="space-y-3 text-sm text-slate-700">
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Unlimited active jobs</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Unlimited resume uploads</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Compare unlimited candidates</li>
+      <li class="flex items-center gap-2"><i class="ti ti-check text-emerald-500"></i> Explainable scores and analytics</li>
+    </ul>
+
+    <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-500 flex items-start gap-2">
+      <i class="ti ti-shield-check text-emerald-500 text-base"></i>
+      <span>This is a demo checkout. No real payment is taken and no card details are collected.</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: order summary -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit">
+    <div class="text-sm font-semibold mb-4">Order summary</div>
+
+    <div class="flex items-center justify-between text-sm text-slate-600">
+      <span>Pro plan (monthly)</span>
+      <span>₹{{ price }}</span>
+    </div>
+    <div class="flex items-center justify-between text-sm text-slate-600 mt-2">
+      <span>Taxes</span>
+      <span>₹0</span>
+    </div>
+
+    <div class="border-t border-slate-200 mt-4 pt-4 flex items-center justify-between">
+      <span class="text-sm font-semibold">Total</span>
+      <span class="text-xl font-bold">₹{{ price }}</span>
+    </div>
+
+    <form method="post" class="mt-5">
+      {% csrf_token %}
+      <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition">
+        Pay ₹{{ price }} (demo)
+      </button>
+    </form>
+
+    <p class="text-[11px] text-slate-400 text-center mt-3">Cancel any time. Switch back to Free from Plans.</p>
+  </div>
+
+</div>
+
+{% endblock %}
