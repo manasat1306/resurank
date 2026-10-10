@@ -27,7 +27,7 @@ from .plans import (
 def job_list(request):
     # Only show jobs belonging to the logged-in recruiter
     
-    all_jobs = Job.objects.filter(recruiter=request.user)
+    all_jobs = Job.objects.filter(recruiter=request.user).annotate(app_count=Count('applications'))
 
     tab = request.GET.get('status', 'all')
     q = request.GET.get('q', '').strip()
@@ -55,7 +55,14 @@ def job_list(request):
     }
 
     # Newest first
-    jobs = jobs.order_by('-created_at')
+    sort = request.GET.get('sort', 'newest')
+    if sort == 'oldest':
+        jobs = jobs.order_by('created_at')
+    elif sort == 'title':
+        jobs = jobs.order_by('title')
+    else:
+        sort = 'newest'
+        jobs = jobs.order_by('-created_at')
 
     # Pagination
     paginator = Paginator(jobs, 6)
@@ -68,6 +75,7 @@ def job_list(request):
         'counts': counts,
         'tab': tab,
         'q': q,
+        'sort': sort,
         'tabs': [
             ('all', 'All Jobs'),
             ('active', 'Active'),
@@ -596,3 +604,56 @@ def resume_view(request, pk, app_id):
         raise Http404('Resume file not found')
 
     return FileResponse(file, content_type='application/pdf')
+
+@login_required
+def all_applicants(request):
+    # Only applications for this recruiter's own jobs
+    base = Application.objects.filter(job__recruiter=request.user).select_related('job')
+
+    tab = request.GET.get('status', 'all')
+    q = request.GET.get('q', '').strip()
+    job_id = request.GET.get('job', '')
+
+    apps = base
+    if tab in dict(Application.STATUS_CHOICES):
+        apps = apps.filter(status=tab)
+    else:
+        tab = 'all'
+    if q:
+        apps = apps.filter(
+            Q(candidate_name__icontains=q) | Q(candidate_email__icontains=q)
+        )
+    if job_id.isdigit():
+        apps = apps.filter(job_id=int(job_id))
+
+    sort = request.GET.get('sort', 'score')
+    if sort == 'lowest':
+        apps = apps.order_by('final_score', '-applied_at')
+    elif sort == 'recent':
+        apps = apps.order_by('-applied_at')
+    elif sort == 'name':
+        apps = apps.order_by('candidate_name')
+    else:
+        sort = 'score'
+        apps = apps.order_by('-final_score', '-applied_at')
+
+    # Counts for the tabs
+    raw = {r['status']: r['n'] for r in base.values('status').annotate(n=Count('id'))}
+    tabs = [{'key': 'all', 'label': 'All', 'count': base.count()}] + [
+        {'key': key, 'label': label, 'count': raw.get(key, 0)}
+        for key, label in Application.STATUS_CHOICES
+    ]
+
+    paginator = Paginator(apps, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'resume_analyzer/all_applicants.html', {
+        'page_obj': page_obj,
+        'filtered_count': paginator.count,
+        'tabs': tabs,
+        'tab': tab,
+        'q': q,
+        'sort': sort,
+        'jobs': Job.objects.filter(recruiter=request.user).order_by('title'),
+        'selected_job': int(job_id) if job_id.isdigit() else '',
+    })

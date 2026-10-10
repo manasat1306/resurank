@@ -18,7 +18,7 @@ Create, manage, and track your hiring opportunities.
 
 {% block content %}
 
-<div class="w-full max-w-7xl mx-auto space-y-6">
+<div class="w-full space-y-6">
 
     <!-- Page heading -->
     <div>
@@ -45,7 +45,7 @@ Create, manage, and track your hiring opportunities.
 
         {% for key, label in tabs %}
 
-        <a href="?status={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}"
+        <a href="?status={{ key }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}"
            class="group inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition
            {% if tab == key %}
                border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm
@@ -83,11 +83,11 @@ Create, manage, and track your hiring opportunities.
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
         <!-- Toolbar -->
-        <div class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <form method="get" class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
 
-            <form method="get" class="relative w-full sm:max-w-md">
+            <input type="hidden" name="status" value="{{ tab }}">
 
-                <input type="hidden" name="status" value="{{ tab }}">
+            <div class="relative w-full sm:max-w-md">
 
                 <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400"></i>
 
@@ -99,16 +99,16 @@ Create, manage, and track your hiring opportunities.
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100"
                 >
 
-            </form>
+            </div>
 
-            <button
-                type="button"
-                class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm">
-                <i class="ti ti-sort-descending text-base"></i>
-                Newest first
-            </button>
+            <select name="sort" onchange="this.form.submit()"
+                    class="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm outline-none focus:border-indigo-400">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+                <option value="title" {% if sort == 'title' %}selected{% endif %}>Title A to Z</option>
+            </select>
 
-        </div>
+        </form>
 
 
         <!-- Table -->
@@ -208,7 +208,7 @@ Create, manage, and track your hiring opportunities.
                         <td class="px-5 py-5">
 
                             <div class="font-semibold text-slate-900">
-                                0
+                                {{ job.app_count }}
                             </div>
 
                             <div class="text-xs text-slate-400">
@@ -380,7 +380,7 @@ Create, manage, and track your hiring opportunities.
 
                 {% if page_obj.has_previous %}
 
-                    <a href="?status={{ tab }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ page_obj.previous_page_number }}"
+                    <a href="?status={{ tab }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ page_obj.previous_page_number }}"
                        class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50">
                         <i class="ti ti-chevron-left"></i>
                         Previous
@@ -391,7 +391,7 @@ Create, manage, and track your hiring opportunities.
 
                 {% for num in page_obj.paginator.page_range %}
 
-                    <a href="?status={{ tab }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ num }}"
+                    <a href="?status={{ tab }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ num }}"
                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-xs font-semibold
                        {% if page_obj.number == num %}
                            border-indigo-200 bg-indigo-50 text-indigo-700
@@ -406,7 +406,7 @@ Create, manage, and track your hiring opportunities.
 
                 {% if page_obj.has_next %}
 
-                    <a href="?status={{ tab }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ page_obj.next_page_number }}"
+                    <a href="?status={{ tab }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}&page={{ page_obj.next_page_number }}"
                        class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50">
                         Next
                         <i class="ti ti-chevron-right"></i>

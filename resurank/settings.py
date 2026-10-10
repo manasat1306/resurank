@@ -20,13 +20,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9=w0jzqm&a+p@#_=l4!&et_btey_t15c=pwyolu84j)+(tl12u'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-local-dev-key')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Local = True. On Render we set DEBUG=False in its settings.
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Render gives the live site address in this variable
+RENDER_HOST = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+    CSRF_TRUSTED_ORIGINS = ['https://' + RENDER_HOST]
 
 
 # Application definition
@@ -131,6 +136,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
 
 # Uploaded files (candidate resumes)
 MEDIA_URL = '/media/'

@@ -18,6 +18,7 @@ urlpatterns = [
     path('jobs/<int:pk>/applicants/<int:app_id>/status/', job_views.application_set_status, name='application_set_status'),
     path('jobs/<int:pk>/compare/', job_views.compare_candidates, name='compare_candidates'),
     path('compare/', job_views.compare_picker, name='compare_picker'),    
+    path('applicants/', job_views.all_applicants, name='all_applicants'),
     path('analyze/', job_views.analyze_resume, name='analyze_resume'),
     path('analytics/', job_views.analytics, name='analytics'),
     path('settings/', job_views.account_settings, name='account_settings'),

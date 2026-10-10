@@ -109,6 +109,16 @@
           <div class="text-[11px] text-slate-400">Recruiter</div>
         </div>
       </a>
+
+      <!-- Logout -->
+      <form method="post" action="{% url 'logout' %}" class="p-2 border-t border-slate-200">
+        {% csrf_token %}
+        <button type="submit"
+                class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition">
+          <i class="ti ti-logout text-base"></i> Log out
+        </button>
+      </form>
+
     </aside>
 
     <!-- MAIN AREA -->

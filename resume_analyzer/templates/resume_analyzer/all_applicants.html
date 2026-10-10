@@ -1,0 +1,199 @@
+{% extends 'resume_analyzer/base.html' %}
+
+{% block title %}All Applicants{% endblock %}
+{% block page_title %}Applicants{% endblock %}
+{% block page_subtitle %}Every candidate across your jobs, ranked by score.{% endblock %}
+
+{% block content %}
+
+<div class="w-full space-y-6">
+
+    <!-- Page heading -->
+    <div>
+        <div class="text-[10px] font-semibold tracking-[0.22em] text-indigo-600">
+            HIRING WORKSPACE
+        </div>
+        <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">All Applicants</h1>
+        <p class="mt-1 text-sm text-slate-500">
+            See everyone who applied, ranked by match score. You make every final decision.
+        </p>
+    </div>
+
+    <!-- Status tabs -->
+    <div class="flex flex-wrap gap-2">
+        {% for t in tabs %}
+        <a href="?status={{ t.key }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_job %}&job={{ selected_job }}{% endif %}"
+           class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition
+           {% if tab == t.key %}
+               border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm
+           {% else %}
+               border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-700
+           {% endif %}">
+            {{ t.label }}
+            <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold
+                {% if tab == t.key %}bg-white text-indigo-600{% else %}bg-slate-100 text-slate-500{% endif %}">
+                {{ t.count }}
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Main card -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <!-- Toolbar -->
+        <form method="get" class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <input type="hidden" name="status" value="{{ tab }}">
+
+            <div class="relative w-full sm:max-w-md">
+                <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400"></i>
+                <input type="text" name="q" value="{{ q }}" placeholder="Search by name or email..."
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <select name="job" onchange="this.form.submit()"
+                        class="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm">
+                    <option value="">All jobs</option>
+                    {% for j in jobs %}
+                        <option value="{{ j.pk }}" {% if selected_job == j.pk %}selected{% endif %}>{{ j.title }}</option>
+                    {% endfor %}
+                </select>
+                <select name="sort" onchange="this.form.submit()"
+                        class="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm">
+                    <option value="score" {% if sort == 'score' %}selected{% endif %}>Highest score</option>
+                    <option value="lowest" {% if sort == 'lowest' %}selected{% endif %}>Lowest score</option>
+                    <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Newest applied</option>
+                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Name A to Z</option>
+                </select>
+            </div>
+        </form>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50/70 text-left">
+                        <th class="px-6 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">CANDIDATE</th>
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">JOB</th>
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">SCORE</th>
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">STATUS</th>
+                        <th class="px-5 py-4 text-[10px] font-semibold tracking-[0.16em] text-slate-400">APPLIED</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-semibold tracking-[0.16em] text-slate-400">ACTIONS</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100">
+                {% for a in page_obj %}
+                    <tr class="transition hover:bg-slate-50/70">
+
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-600">
+                                    {{ a.candidate_name|slice:":1"|upper }}
+                                </div>
+                                <div class="min-w-0">
+                                    <a href="{% url 'candidate_analysis' a.job.pk a.pk %}"
+                                       class="font-semibold text-slate-900 transition hover:text-indigo-600">{{ a.candidate_name }}</a>
+                                    <div class="mt-0.5 text-xs text-slate-500">{{ a.candidate_email }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-600">{{ a.job.title }}</td>
+
+                        <td class="px-5 py-4">
+                            <span class="rounded-md px-2 py-1 text-xs font-semibold
+                                {% if a.final_score >= 80 %}bg-emerald-50 text-emerald-700{% elif a.final_score >= 60 %}bg-amber-50 text-amber-700{% else %}bg-rose-50 text-rose-700{% endif %}">
+                                {{ a.final_score }}%
+                            </span>
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {% if a.status == 'selected' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{{ a.get_status_display }}</span>
+                            {% elif a.status == 'rejected' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700"><span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>{{ a.get_status_display }}</span>
+                            {% elif a.status == 'shortlisted' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700"><span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>{{ a.get_status_display }}</span>
+                            {% elif a.status == 'under_review' or a.status == 'interview' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700"><span class="h-1.5 w-1.5 rounded-full bg-sky-500"></span>{{ a.get_status_display }}</span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>{{ a.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-600">{{ a.applied_at|date:"d M Y" }}</td>
+
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end">
+                                <a href="{% url 'candidate_analysis' a.job.pk a.pk %}"
+                                   class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="ti ti-eye text-sm"></i> View
+                                </a>
+                            </div>
+                        </td>
+
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16">
+                            <div class="flex flex-col items-center justify-center text-center">
+                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+                                    <i class="ti ti-users text-2xl"></i>
+                                </div>
+                                <h3 class="mt-4 text-base font-semibold text-slate-900">No applicants found</h3>
+                                <p class="mt-1 max-w-sm text-sm text-slate-500">Try changing your search or filters.</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer / Pagination -->
+        <div class="flex flex-col gap-3 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div class="text-xs text-slate-500">
+                Showing
+                <span class="font-semibold text-slate-700">{{ page_obj.start_index|default:0 }}–{{ page_obj.end_index|default:0 }}</span>
+                of
+                <span class="font-semibold text-slate-700">{{ filtered_count }}</span>
+                applicants
+            </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="flex items-center gap-1">
+
+                {% if page_obj.has_previous %}
+                <a href="?status={{ tab }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_job %}&job={{ selected_job }}{% endif %}&page={{ page_obj.previous_page_number }}"
+                   class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                    <i class="ti ti-chevron-left"></i> Previous
+                </a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                <a href="?status={{ tab }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_job %}&job={{ selected_job }}{% endif %}&page={{ num }}"
+                   class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-xs font-semibold
+                   {% if page_obj.number == num %}border-indigo-200 bg-indigo-50 text-indigo-700{% else %}border-slate-200 bg-white text-slate-600 hover:bg-slate-50{% endif %}">
+                    {{ num }}
+                </a>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <a href="?status={{ tab }}&sort={{ sort }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_job %}&job={{ selected_job }}{% endif %}&page={{ page_obj.next_page_number }}"
+                   class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                    Next <i class="ti ti-chevron-right"></i>
+                </a>
+                {% endif %}
+
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
