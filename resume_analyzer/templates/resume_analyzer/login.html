@@ -77,14 +77,14 @@
           {% if form.errors %}
             <div class="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700">
               <i class="ti ti-alert-circle mt-0.5 text-sm"></i>
-              <span>Invalid username or password.</span>
+              <span>Invalid email or password.</span>
             </div>
           {% endif %}
 
           <div>
-            <label for="username" class="text-sm font-semibold text-slate-800">Username</label>
+            <label for="username" class="text-sm font-semibold text-slate-800">Email</label>
             <input type="text" name="username" id="username" required autofocus autocomplete="username"
-                   placeholder="Enter your username"
+                   placeholder="Enter your email"
                    class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100">
           </div>
 
