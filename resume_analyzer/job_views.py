@@ -374,6 +374,7 @@ def compare_picker(request):
         'jobs': jobs,
         'selected_job': selected_job,
         'applicants': applicants,
+        'compare_max': get_limits(request.user)['compare'],
     })    
 
 @login_required
