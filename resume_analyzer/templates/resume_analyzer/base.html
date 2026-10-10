@@ -99,7 +99,8 @@
       </nav>
 
       <!-- Logged-in user -->
-      <div class="p-3 border-t border-slate-200 flex items-center gap-2">
+      <a href="{% url 'account_settings' %}"
+         class="p-3 border-t border-slate-200 flex items-center gap-2 hover:bg-slate-50 transition">
         <div class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold flex items-center justify-center">
           {{ request.user.username|slice:":2"|upper }}
         </div>
@@ -107,7 +108,7 @@
           <div class="text-xs font-semibold">{{ request.user.get_full_name|default:request.user.username }}</div>
           <div class="text-[11px] text-slate-400">Recruiter</div>
         </div>
-      </div>
+      </a>
     </aside>
 
     <!-- MAIN AREA -->
