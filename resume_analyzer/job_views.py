@@ -578,3 +578,21 @@ def checkout_page(request):
     return render(request, 'resume_analyzer/checkout.html', {
         'price': 999,
     })
+
+@login_required
+def resume_view(request, pk, app_id):
+    from django.http import FileResponse, Http404
+
+    # Only the recruiter who owns the job can open the resume
+    job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+    application = get_object_or_404(Application, pk=app_id, job=job)
+
+    if not application.resume_file:
+        raise Http404('No resume file')
+
+    try:
+        file = application.resume_file.open('rb')
+    except (FileNotFoundError, ValueError):
+        raise Http404('Resume file not found')
+
+    return FileResponse(file, content_type='application/pdf')

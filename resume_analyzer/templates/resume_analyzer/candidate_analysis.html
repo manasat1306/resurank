@@ -35,7 +35,7 @@
             <i class="ti ti-x"></i> Reject
           </button>
         </form>
-        <a href="{{ application.resume_file.url }}" target="_blank" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+                <a href="{% url 'resume_view' job.pk application.pk %}" target="_blank" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
           <i class="ti ti-file-text"></i> View Resume
         </a>
       </div>

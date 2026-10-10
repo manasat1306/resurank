@@ -14,6 +14,7 @@ urlpatterns = [
     path('jobs/<int:pk>/close/', job_views.job_close, name='job_close'),
     path('jobs/<int:pk>/applicants/', job_views.job_applicants, name='job_applicants'),
     path('jobs/<int:pk>/applicants/<int:app_id>/', job_views.candidate_analysis, name='candidate_analysis'),
+    path('jobs/<int:pk>/applicants/<int:app_id>/resume/', job_views.resume_view, name='resume_view'),
     path('jobs/<int:pk>/applicants/<int:app_id>/status/', job_views.application_set_status, name='application_set_status'),
     path('jobs/<int:pk>/compare/', job_views.compare_candidates, name='compare_candidates'),
     path('compare/', job_views.compare_picker, name='compare_picker'),    
