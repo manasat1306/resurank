@@ -1,4 +1,5 @@
 {% extends 'candidate/base.html' %}
+{% load static %}
 {% block title %}Application submitted{% endblock %}
 
 {% block content %}
@@ -21,4 +22,10 @@
       </div>
     </div>
   </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <div id="save-application" data-token="{{ application.tracking_token }}" data-title="{{ application.job.title }}" hidden></div>
+  <script src="{% static 'resume_analyzer/js/my_applications.js' %}"></script>
 {% endblock %}
