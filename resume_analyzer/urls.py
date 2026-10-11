@@ -26,5 +26,6 @@ urlpatterns = [
     path('plans/', job_views.plans_page, name='plans'),
     path('plans/switch/', job_views.switch_plan, name='switch_plan'),
     path('plans/checkout/', job_views.checkout_page, name='checkout'),
+    path('plans/checkout/success/', job_views.checkout_success, name='checkout_success'),
         
 ]

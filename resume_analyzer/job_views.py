@@ -21,6 +21,7 @@ from .plans import (
     get_limits, can_activate_job, can_accept_application,
     get_plan, active_jobs_used, apps_used_this_month,
 )
+import uuid
 
 
 @login_required
@@ -581,11 +582,25 @@ def checkout_page(request):
         profile, _ = RecruiterProfile.objects.get_or_create(user=request.user)
         profile.plan = 'pro'
         profile.save()
-        messages.success(request, 'Payment successful (demo). You are now on the Pro plan.')
-        return redirect('plans')
+        request.session['checkout_receipt'] = {
+            'order_no': 'RR-' + uuid.uuid4().hex[:8].upper(),
+            'amount': 999,
+            'date': timezone.localtime().strftime('%d %b %Y, %I:%M %p'),
+        }
+        return redirect('checkout_success')
 
     return render(request, 'resume_analyzer/checkout.html', {
         'price': 999,
+    })
+
+
+@login_required
+def checkout_success(request):
+    receipt = request.session.get('checkout_receipt')
+    if not receipt:
+        return redirect('plans')
+    return render(request, 'resume_analyzer/checkout_success.html', {
+        'receipt': receipt,
     })
 
 @login_required

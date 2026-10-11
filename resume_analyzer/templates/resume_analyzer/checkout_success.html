@@ -1,0 +1,78 @@
+{% extends 'resume_analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Payment successful{% endblock %}
+{% block page_title %}Payment{% endblock %}
+{% block page_subtitle %}Upgrade to Pro{% endblock %}
+
+{% block extra_head %}
+<style>
+  @keyframes rr-spin { to { transform: rotate(360deg); } }
+  @keyframes rr-hide { to { opacity: 0; visibility: hidden; } }
+  @keyframes rr-pop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  .rr-processing {
+    position: fixed; inset: 0; z-index: 60; background: #ffffff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    animation: rr-hide 0.4s ease 2s forwards;
+  }
+  .rr-spinner {
+    width: 48px; height: 48px; border-radius: 9999px;
+    border: 4px solid #e0e7ff; border-top-color: #4f46e5;
+    animation: rr-spin 0.8s linear infinite;
+  }
+  .rr-tick { animation: rr-pop 0.5s ease 2.1s both; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="rr-processing">
+  <div class="rr-spinner"></div>
+  <p class="mt-5 text-sm font-semibold text-slate-700">Processing your payment...</p>
+  <p class="mt-1 text-xs text-slate-400">Please do not close this page</p>
+</div>
+
+<div class="max-w-xl mx-auto">
+  <div class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm text-center">
+
+    <div class="rr-tick mx-auto h-16 w-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+      <i class="ti ti-check text-4xl"></i>
+    </div>
+
+    <h1 class="mt-4 text-2xl font-bold text-slate-900">Payment successful</h1>
+    <p class="mt-1 text-sm text-slate-500">You are now on the ResuRank Pro plan.</p>
+
+    <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5 text-left text-sm">
+      <div class="flex items-center justify-between py-1.5">
+        <span class="text-slate-500">Plan</span>
+        <span class="font-semibold text-slate-900">ResuRank Pro (monthly)</span>
+      </div>
+      <div class="flex items-center justify-between py-1.5">
+        <span class="text-slate-500">Amount paid</span>
+        <span class="font-semibold text-slate-900">₹{{ receipt.amount }}</span>
+      </div>
+      <div class="flex items-center justify-between py-1.5">
+        <span class="text-slate-500">Date</span>
+        <span class="font-semibold text-slate-900">{{ receipt.date }}</span>
+      </div>
+      <div class="flex items-center justify-between py-1.5">
+        <span class="text-slate-500">Order number</span>
+        <span class="font-semibold text-slate-900">{{ receipt.order_no }}</span>
+      </div>
+    </div>
+
+    <p class="mt-4 text-[11px] text-slate-400">Demo payment. No real money was taken and no card details were collected.</p>
+
+    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+      <a href="{% url 'compare_picker' %}" class="rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-semibold text-white hover:opacity-90 transition">
+        Go to Compare
+      </a>
+      <a href="{% url 'dashboard' %}" class="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+        Go to Dashboard
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
