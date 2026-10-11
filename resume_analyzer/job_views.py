@@ -22,7 +22,9 @@ from .plans import (
     get_plan, active_jobs_used, apps_used_this_month,
 )
 import uuid
-
+import csv
+from django.http import HttpResponse
+from django.utils.text import slugify
 
 @login_required
 def job_list(request):
@@ -679,3 +681,46 @@ def landing(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'resume_analyzer/landing.html')
+
+def _csv_safe(value):
+    # Stops spreadsheet programs from running text that starts with = + - @ as a formula
+    text = str(value or '')
+    if text[:1] in ('=', '+', '-', '@'):
+        return "'" + text
+    return text
+
+
+@login_required
+def export_applicants_csv(request, pk):
+    job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+
+    if get_plan(request.user) != 'pro':
+        messages.error(request, 'CSV export is a Pro feature. Upgrade to Pro to export ranked applicants.')
+        return redirect('plans')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{slugify(job.title) or "job"}-ranked-applicants.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Rank', 'Name', 'Email', 'Phone', 'Status', 'Final score',
+        'Skill score', 'Similarity score', 'Matched skills', 'Missing skills', 'Applied on',
+    ])
+
+    applications = job.applications.order_by('-final_score', '-applied_at')
+    for rank, a in enumerate(applications, start=1):
+        writer.writerow([
+            rank,
+            _csv_safe(a.candidate_name),
+            _csv_safe(a.candidate_email),
+            _csv_safe(a.candidate_phone),
+            a.get_status_display(),
+            round(a.final_score or 0, 1),
+            round(a.skill_score or 0, 1),
+            round(a.similarity_score or 0, 1),
+            _csv_safe('; '.join(a.matched_skills or [])),
+            _csv_safe('; '.join(a.missing_skills or [])),
+            a.applied_at.strftime('%Y-%m-%d'),
+        ])
+
+    return response

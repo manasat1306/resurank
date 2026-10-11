@@ -42,6 +42,9 @@ Review and rank the candidates who applied.
                 <i class="ti ti-arrows-diff"></i> Compare
             </button>
             <span id="compare-hint" class="text-[11px] text-slate-400">Tick 2 to {{ compare_max }} candidates</span>
+            <a href="{% url 'export_applicants_csv' job.pk %}" class="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:underline">
+                <i class="ti ti-download"></i> Export CSV (Pro)
+            </a>
         </div>
     </div>
 
