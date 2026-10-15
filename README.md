@@ -5,7 +5,7 @@
 Live demo: https://resurank.onrender.com
 (The free server sleeps. The first load can take about 50 seconds.)
 
-Demo video: ADD LINK HERE
+Demo video: https://youtu.be/vQcMigRY2Is
 
 ## Who it is for
 
@@ -46,7 +46,7 @@ Scores never auto-reject anyone. Names, gender and photos are never used in scor
 
 Final score = (skill score x skill weight) + (similarity score x similarity weight)
 
-- Skill score: required skills found in the resume. It uses a synonym list (for example JS = JavaScript), text cleaning and whole-word matching.
+- Skill score: required skills found in the resume. It uses text cleaning and whole-word matching, and it handles names like C++ and Node.js
 - Similarity score: TF-IDF with cosine similarity (scikit-learn).
 - Default weights are 70 / 30. Each job can change them.
 
@@ -81,7 +81,7 @@ Final score = (skill score x skill weight) + (similarity score x similarity weig
 ## Run it locally
 
 ```
-git clone <your repo link>
+git clone https://github.com/manasat1306/resurank
 cd resurank
 python -m venv venv
 venv\Scripts\activate
@@ -101,7 +101,15 @@ python manage.py test
 
 ## Screenshots
 
-ADD SCREENSHOTS HERE
+![Ranked applicants](screenshots/1-ranked-applicants.png)
+
+![Explainable analysis](screenshots/2-explainable-analysis.png)
+
+![Compare candidates](screenshots/3-compare.png)
+
+![Landing page](screenshots/4-landing.png)
+
+![Plans](screenshots/5-plans.png)
 
 ## Limits (honest notes)
 
